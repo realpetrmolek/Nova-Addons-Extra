@@ -89,7 +89,7 @@ object Blocks : BlockRegistry by Machines.registry {
     val ELECTRIC_FURNACE = activeMachine("electric_furnace", ::ElectricFurnace)
     val MECHANICAL_PRESS = stateBackedMachine("mechanical_press", ::MechanicalPress)
     val PULVERIZER = stateBackedMachine("pulverizer", ::Pulverizer)
-    val ALLOY_SMELTER = stateBackedMachine("alloy_smelter", ::AlloySmelter)
+    val ALLOY_SMELTER = activeMachine("alloy_smelter", ::AlloySmelter)
     val BLOCK_BREAKER = stateBackedMachine("block_breaker", ::BlockBreaker)
     val BLOCK_PLACER = stateBackedMachine("block_placer", ::BlockPlacer)
     val STAR_COLLECTOR = entityBackedMachine("star_collector", ::StarCollector)

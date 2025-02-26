@@ -10,6 +10,7 @@ import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent
 import xyz.xenondevs.nova.addon.machines.gui.ProgressArrowItem
 import xyz.xenondevs.nova.addon.machines.gui.AlloySmelterProgressItem
 import xyz.xenondevs.nova.addon.machines.recipe.AlloySmelterRecipe
+import xyz.xenondevs.nova.addon.machines.registry.BlockStateProperties
 import xyz.xenondevs.nova.addon.machines.registry.Blocks.ALLOY_SMELTER
 import xyz.xenondevs.nova.addon.machines.registry.RecipeTypes
 import xyz.xenondevs.nova.addon.machines.util.energyConsumption
@@ -53,6 +54,14 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
 
     private val energyPerTick by energyConsumption(ENERGY_PER_TICK, upgradeHolder)
     private val alloySmelterSpeed by speedMultipliedValue(ALLOY_SMELTER_SPEED, upgradeHolder)
+    
+    private var active: Boolean = blockState.getOrThrow(BlockStateProperties.ACTIVE)
+        set(active) {
+            if (field != active) {
+                field = active
+                updateBlockState(blockState.with(BlockStateProperties.ACTIVE, active))
+            }
+        }
 
     private var timeLeft by storedValue("alloySmelterTime") { 0 }
 
@@ -75,6 +84,7 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
     override fun handleDisable() {
         super.handleDisable()
         particleTask.stop()
+        active = false
     }
 
     override fun handleTick() {
@@ -84,12 +94,14 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
 
                 if (particleTask.isRunning())
                     particleTask.stop()
+                active = false
             } else {
                 timeLeft = max(timeLeft - alloySmelterSpeed, 0)
                 energyHolder.energy -= energyPerTick
 
                 if (!particleTask.isRunning())
                     particleTask.start()
+                active = true
 
                 if (timeLeft == 0) {
                     currentRecipe?.let { outputInv.addItem(SELF_UPDATE_REASON, it.result) }
@@ -99,7 +111,12 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
                 menuContainer.forEachMenu(AlloySmelterMenu::updateProgress)
             }
 
-        } else if (particleTask.isRunning()) particleTask.stop()
+        } else {
+            if (particleTask.isRunning()) {
+                particleTask.stop()
+            }
+            active = false
+        }
     }
 
     private fun takeItem() {
