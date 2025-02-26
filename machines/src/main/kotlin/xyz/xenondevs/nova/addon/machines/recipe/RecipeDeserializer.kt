@@ -24,9 +24,30 @@ object PulverizerRecipeDeserializer : ConversionRecipeDeserializer<PulverizerRec
         PulverizerRecipe(id, input, result, time)
 }
 
-object AlloySmelterRecipeDeserializer : ConversionRecipeDeserializer<AlloySmelterRecipe>() {
-    override fun createRecipe(json: JsonObject, id: Key, input: RecipeChoice, result: ItemStack, time: Int) =
-        AlloySmelterRecipe(id, input, result, time)
+object AlloySmelterRecipeDeserializer : RecipeDeserializer<AlloySmelterRecipe> {
+
+    override fun deserialize(json: JsonObject, file: File): AlloySmelterRecipe {
+        // Parse inputs array
+        val inputs = json.getAsJsonArray("inputs").map { ItemUtils.getRecipeChoice(listOf(it.asString)) }
+        require(inputs.all { it.getInputStacks().size == 1 })
+
+        // Get result item
+        val resultItem = ItemUtils.getItemStack(json.getString("result"))
+
+        // Apply amount if specified
+        if (json.has("amount")) {
+            resultItem.amount = json.get("amount").asInt
+        }
+
+        // Get processing time
+        val time = json.getIntOrNull("time") ?: 0
+
+        return AlloySmelterRecipe(
+            getRecipeKey(file),
+            inputs, resultItem,
+            time
+        )
+    }
 }
 
 object PlatePressRecipeDeserializer : ConversionRecipeDeserializer<PlatePressRecipe>() {
@@ -55,21 +76,21 @@ object FluidInfuserRecipeDeserializer : RecipeDeserializer<FluidInfuserRecipe> {
 }
 
 object ElectricBrewingStandRecipeDeserializer : RecipeDeserializer<ElectricBrewingStandRecipe> {
-    
+
     override fun deserialize(json: JsonObject, file: File): ElectricBrewingStandRecipe {
         val inputs = json.getAsJsonArray("inputs").map { ItemUtils.getRecipeChoice(listOf(it.asString)) }
         require(inputs.all { it.getInputStacks().size == 1 })
-        
+
         val resultName = json.getString("result")
         val result = Registry.EFFECT.get(Key.key(resultName))
             ?: throw IllegalArgumentException("Invalid result")
-        
+
         val defaultTime = json.getIntOrNull("default_time") ?: 0
         val redstoneMultiplier = json.getDoubleOrNull("redstone_multiplier") ?: 0.0
         val glowstoneMultiplier = json.getDoubleOrNull("glowstone_multiplier") ?: 0.0
         val maxDurationLevel = json.getIntOrNull("max_duration_level") ?: 0
         val maxAmplifierLevel = json.getIntOrNull("max_amplifier_level") ?: 0
-        
+
         return ElectricBrewingStandRecipe(
             getRecipeKey(file),
             inputs, result,

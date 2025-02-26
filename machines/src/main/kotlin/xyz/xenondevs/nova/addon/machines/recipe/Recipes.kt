@@ -78,10 +78,10 @@ class CrystallizerRecipe(
 }
 
 class AlloySmelterRecipe(
-    id: Key,
-    input: RecipeChoice,
-    result: ItemStack,
-    time: Int
-) : ConversionNovaRecipe(id, input, result, time) {
+    override val id: Key,
+    override val inputs: List<RecipeChoice>,
+    val result: ItemStack,
+    val time: Int,
+) : NovaRecipe, MultiInputChoiceRecipe {
     override val type = RecipeTypes.ALLOY_SMELTER
 }

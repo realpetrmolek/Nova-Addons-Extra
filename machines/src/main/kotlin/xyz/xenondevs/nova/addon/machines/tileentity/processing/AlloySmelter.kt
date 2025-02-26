@@ -2,6 +2,7 @@ package xyz.xenondevs.nova.addon.machines.tileentity.processing
 
 import net.kyori.adventure.key.Key
 import net.minecraft.core.particles.ParticleTypes
+import org.bukkit.inventory.ItemStack
 import xyz.xenondevs.cbf.Compound
 import xyz.xenondevs.commons.collections.enumSetOf
 import xyz.xenondevs.commons.provider.mapNonNull
@@ -46,8 +47,9 @@ private val ALLOY_SMELTER_SPEED = ALLOY_SMELTER.config.entry<Int>("speed")
 
 class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : NetworkedTileEntity(pos, blockState, data) {
 
-    private val inputInv = storedInventory("input", 3, ::handleInputUpdate)
-    private val outputInv = storedInventory("output", 1, ::handleOutputUpdate)
+    //private val inputInv = storedInventory("input", 3, ::handleInputUpdate)
+    private val inputInv = storedInventory("input", 3, true, IntArray(3) { 64 }, ::handleInputUpdate, null)
+    private val outputInv = storedInventory("output", 2, ::handleOutputUpdate)
     private val upgradeHolder = storedUpgradeHolder(UpgradeTypes.SPEED, UpgradeTypes.EFFICIENCY, UpgradeTypes.ENERGY)
     private val energyHolder = storedEnergyHolder(MAX_ENERGY, upgradeHolder, INSERT, BLOCKED_SIDES)
     private val itemHolder = storedItemHolder(inputInv to INSERT, outputInv to EXTRACT, blockedSides = BLOCKED_SIDES)
@@ -122,17 +124,48 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
     private fun takeItem() {
         // Get all non-empty input items
         val inputItems = inputInv.items.filterNotNull()
-        
-        // Find matching recipe
-        val recipe = RecipeManager.getConversionRecipeFor(RecipeTypes.ALLOY_SMELTER, inputItems) as? AlloySmelterRecipe
-        if (recipe != null && outputInv.canHold(recipe.result)) {
-            // Remove recipe inputs
-            recipe.inputs.forEach { choice ->
-                inputInv.removeFirstSimilar(SELF_UPDATE_REASON, 1, choice)
+
+        if (inputItems.isEmpty()) return
+
+        // Get all alloy smelter recipes
+        val allRecipes = RecipeManager.novaRecipes[RecipeTypes.ALLOY_SMELTER]?.values
+            ?.filterIsInstance<AlloySmelterRecipe>() ?: return
+
+        // Find a matching recipe
+        recipeLoop@ for (recipe in allRecipes) {
+            // Check if we have enough input items
+            if (recipe.inputs.size > inputItems.size) continue
+
+            // Create a copy of the input items list to keep track of what we've matched
+            val availableItems = inputItems.toMutableList()
+
+            // Try to match each input choice
+            val matchedInputs = mutableListOf<ItemStack>()
+
+            for (choice in recipe.inputs) {
+                val matchIndex = availableItems.indexOfFirst { choice.test(it) }
+                if (matchIndex >= 0) {
+                    val item = availableItems[matchIndex]
+                    availableItems.removeAt(matchIndex)
+                    matchedInputs.add(item)
+                } else {
+                    // If any input can't be matched, move to the next recipe
+                    continue@recipeLoop
+                }
             }
-            
-            timeLeft = recipe.time
-            currentRecipe = recipe
+
+            // If we got here, we matched all inputs
+            // Check if we can hold the result
+            if (outputInv.canHold(recipe.result)) {
+                // Remove the matched items from the inventory
+                for (item in matchedInputs) {
+                    inputInv.removeFirstSimilar(SELF_UPDATE_REASON, 1, item)
+                }
+
+                timeLeft = recipe.time
+                currentRecipe = recipe
+                return
+            }
         }
     }
 

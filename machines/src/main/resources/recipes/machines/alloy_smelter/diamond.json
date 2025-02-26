@@ -1,6 +1,10 @@
 {
-  "input": "minecraft:coal",
-  "result": "minecraft:diamond", 
+  "inputs": [
+    "minecraft:coal",
+    "minecraft:iron_ingot",
+    "minecraft:gold_ingot"
+  ],
+  "result": "minecraft:diamond",
   "amount": 1,
   "time": 1000
 }
