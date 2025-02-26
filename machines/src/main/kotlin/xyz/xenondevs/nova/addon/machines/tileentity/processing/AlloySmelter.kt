@@ -46,7 +46,7 @@ private val ALLOY_SMELTER_SPEED = ALLOY_SMELTER.config.entry<Int>("speed")
 
 class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : NetworkedTileEntity(pos, blockState, data) {
 
-    private val inputInv = storedInventory("input", 1, ::handleInputUpdate)
+    private val inputInv = storedInventory("input", 3, ::handleInputUpdate)
     private val outputInv = storedInventory("output", 2, ::handleOutputUpdate)
     private val upgradeHolder = storedUpgradeHolder(UpgradeTypes.SPEED, UpgradeTypes.EFFICIENCY, UpgradeTypes.ENERGY)
     private val energyHolder = storedEnergyHolder(MAX_ENERGY, upgradeHolder, INSERT, BLOCKED_SIDES)
@@ -158,9 +158,9 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
         override val gui = Gui.normal()
             .setStructure(
                 "1 - - - - - - - 2",
-                "| s u # # # # e |",
+                "| i # # # # # e |",
                 "| i # , # o a e |",
-                "| c # # # # # e |",
+                "| i # c # s u e |",
                 "3 - - - - - - - 4")
             .addIngredient('i', inputInv)
             .addIngredient('o', outputInv)
