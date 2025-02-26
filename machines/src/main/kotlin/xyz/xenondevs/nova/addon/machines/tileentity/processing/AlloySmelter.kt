@@ -47,7 +47,7 @@ private val ALLOY_SMELTER_SPEED = ALLOY_SMELTER.config.entry<Int>("speed")
 class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : NetworkedTileEntity(pos, blockState, data) {
 
     private val inputInv = storedInventory("input", 3, ::handleInputUpdate)
-    private val outputInv = storedInventory("output", 2, ::handleOutputUpdate)
+    private val outputInv = storedInventory("output", 1, ::handleOutputUpdate)
     private val upgradeHolder = storedUpgradeHolder(UpgradeTypes.SPEED, UpgradeTypes.EFFICIENCY, UpgradeTypes.ENERGY)
     private val energyHolder = storedEnergyHolder(MAX_ENERGY, upgradeHolder, INSERT, BLOCKED_SIDES)
     private val itemHolder = storedItemHolder(inputInv to INSERT, outputInv to EXTRACT, blockedSides = BLOCKED_SIDES)
@@ -120,20 +120,25 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
     }
 
     private fun takeItem() {
-        val inputItem = inputInv.getItem(0)
-        if (inputItem != null) {
-            val recipe = RecipeManager.getConversionRecipeFor(RecipeTypes.ALLOY_SMELTER, inputItem)!!
-            val result = recipe.result
-            if (outputInv.canHold(result)) {
-                inputInv.addItemAmount(SELF_UPDATE_REASON, 0, -1)
-                timeLeft = recipe.time
-                currentRecipe = recipe
+        // Get all non-empty input items
+        val inputItems = inputInv.items.filterNotNull()
+        
+        // Find matching recipe
+        val recipe = RecipeManager.getConversionRecipeFor(RecipeTypes.ALLOY_SMELTER, inputItems) as? AlloySmelterRecipe
+        if (recipe != null && outputInv.canHold(recipe.result)) {
+            // Remove recipe inputs
+            recipe.inputs.forEach { choice ->
+                inputInv.removeFirstSimilar(SELF_UPDATE_REASON, 1, choice)
             }
+            
+            timeLeft = recipe.time
+            currentRecipe = recipe
         }
     }
 
     private fun handleInputUpdate(event: ItemPreUpdateEvent) {
-        event.isCancelled = event.newItem != null && RecipeManager.getConversionRecipeFor(RecipeTypes.ALLOY_SMELTER, event.newItem!!) == null
+        // Allow any item in input slots since recipes can use different combinations
+        event.isCancelled = false
     }
 
     private fun handleOutputUpdate(event: ItemPreUpdateEvent) {
