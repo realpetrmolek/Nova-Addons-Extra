@@ -3,6 +3,8 @@ package xyz.xenondevs.nova.addon.machines.gui
 import xyz.xenondevs.nova.addon.machines.registry.GuiItems
 import xyz.xenondevs.nova.ui.menu.item.ProgressItem
 
+class AlloySmelterProgressItem : ProgressItem(GuiItems.ALLOY_SMELTER_PROGRESS)
+
 class EnergyProgressItem : ProgressItem(GuiItems.ENERGY_PROGRESS)
 
 class ProgressArrowItem : ProgressItem(GuiItems.ARROW_PROGRESS)

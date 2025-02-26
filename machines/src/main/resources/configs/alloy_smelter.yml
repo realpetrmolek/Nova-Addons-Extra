@@ -1,0 +1,4 @@
+capacity: 100000
+energy_per_tick: 50
+alloy_smelting_time: 200
+speed: 1

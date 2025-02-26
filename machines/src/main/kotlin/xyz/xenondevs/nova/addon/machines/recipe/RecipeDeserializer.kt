@@ -24,6 +24,11 @@ object PulverizerRecipeDeserializer : ConversionRecipeDeserializer<PulverizerRec
         PulverizerRecipe(id, input, result, time)
 }
 
+object AlloySmelterRecipeDeserializer : ConversionRecipeDeserializer<AlloySmelterRecipe>() {
+    override fun createRecipe(json: JsonObject, id: Key, input: RecipeChoice, result: ItemStack, time: Int) =
+        AlloySmelterRecipe(id, input, result, time)
+}
+
 object PlatePressRecipeDeserializer : ConversionRecipeDeserializer<PlatePressRecipe>() {
     override fun createRecipe(json: JsonObject, id: Key, input: RecipeChoice, result: ItemStack, time: Int) =
         PlatePressRecipe(id, input, result, time)
