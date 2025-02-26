@@ -35,3 +35,7 @@ logs/
 
 # Kotlin
 .kotlin/
+
+# Aider
+.aider*
+/runAider.sh
