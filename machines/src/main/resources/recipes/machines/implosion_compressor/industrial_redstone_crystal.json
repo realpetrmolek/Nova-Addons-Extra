@@ -13,6 +13,10 @@
     {
       "id": "machines:industrial_redstone_crystal",
       "amount": 3
+    },
+    {
+      "id": "machines:dark_ashes",
+      "amount": 12
     }
   ],
   "time": 40

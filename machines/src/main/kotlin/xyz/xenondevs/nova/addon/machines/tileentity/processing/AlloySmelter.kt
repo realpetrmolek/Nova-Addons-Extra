@@ -105,7 +105,12 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
                 active = true
 
                 if (timeLeft == 0) {
-                    currentRecipe?.let { outputInv.addItem(SELF_UPDATE_REASON, it.result) }
+                    currentRecipe?.let { recipe ->
+                        // Add all output items to the output inventory
+                        recipe.outputs.forEach { output ->
+                            outputInv.addItem(SELF_UPDATE_REASON, output.clone())
+                        }
+                    }
                     currentRecipe = null
                 }
 
@@ -165,8 +170,10 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
             }
 
             // If we got here, we matched all inputs
-            // Check if we can hold the result
-            if (outputInv.canHold(recipe.result)) {
+            // Check if we can hold ALL outputs
+            val canHoldAllOutputs = recipe.outputs.all { outputInv.canHold(it) }
+            
+            if (canHoldAllOutputs) {
                 // Remove the required amount of each matched item
                 for (i in matchedInputs.indices) {
                     val (slotIndex, _) = matchedInputs[i]

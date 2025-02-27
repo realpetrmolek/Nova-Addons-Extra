@@ -56,7 +56,8 @@ object AlloySmelterRecipeDeserializer : RecipeDeserializer<AlloySmelterRecipe> {
             getRecipeKey(file),
             inputs.map { it.first }, resultItem,
             time,
-            inputs.map { it.second }
+            inputs.map { it.second },
+            outputs
         )
     }
 }
@@ -93,7 +94,8 @@ object ImplosionCompressorRecipeDeserializer : RecipeDeserializer<ImplosionCompr
             getRecipeKey(file),
             inputs.map { it.first }, resultItem,
             time,
-            inputs.map { it.second }
+            inputs.map { it.second },
+            outputs
         )
     }
 }
