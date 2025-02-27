@@ -30,6 +30,7 @@ import xyz.xenondevs.nova.addon.machines.tileentity.processing.Freezer
 import xyz.xenondevs.nova.addon.machines.tileentity.processing.MechanicalPress
 import xyz.xenondevs.nova.addon.machines.tileentity.processing.Pulverizer
 import xyz.xenondevs.nova.addon.machines.tileentity.processing.AlloySmelter
+import xyz.xenondevs.nova.addon.machines.tileentity.processing.ImplosionCompressor
 import xyz.xenondevs.nova.addon.machines.tileentity.processing.brewing.ElectricBrewingStand
 import xyz.xenondevs.nova.addon.machines.tileentity.world.BlockBreaker
 import xyz.xenondevs.nova.addon.machines.tileentity.world.BlockPlacer
@@ -90,6 +91,7 @@ object Blocks : BlockRegistry by Machines.registry {
     val MECHANICAL_PRESS = stateBackedMachine("mechanical_press", ::MechanicalPress)
     val PULVERIZER = stateBackedMachine("pulverizer", ::Pulverizer)
     val ALLOY_SMELTER = activeMachine("alloy_smelter", ::AlloySmelter)
+    val IMPLOSION_COMPRESSOR = activeMachine("implosion_compressor", ::ImplosionCompressor)
     val BLOCK_BREAKER = stateBackedMachine("block_breaker", ::BlockBreaker)
     val BLOCK_PLACER = stateBackedMachine("block_placer", ::BlockPlacer)
     val STAR_COLLECTOR = entityBackedMachine("star_collector", ::StarCollector)

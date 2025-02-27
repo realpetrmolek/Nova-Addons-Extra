@@ -9,10 +9,10 @@ import xyz.xenondevs.commons.provider.mapNonNull
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent
 import xyz.xenondevs.nova.addon.machines.gui.ProgressArrowItem
-import xyz.xenondevs.nova.addon.machines.gui.AlloySmelterProgressItem
-import xyz.xenondevs.nova.addon.machines.recipe.AlloySmelterRecipe
+import xyz.xenondevs.nova.addon.machines.gui.ImplosionCompressorProgressItem
+import xyz.xenondevs.nova.addon.machines.recipe.ImplosionCompressorRecipe
 import xyz.xenondevs.nova.addon.machines.registry.BlockStateProperties
-import xyz.xenondevs.nova.addon.machines.registry.Blocks.ALLOY_SMELTER
+import xyz.xenondevs.nova.addon.machines.registry.Blocks.IMPLOSION_COMPRESSOR
 import xyz.xenondevs.nova.addon.machines.registry.RecipeTypes
 import xyz.xenondevs.nova.addon.machines.util.energyConsumption
 import xyz.xenondevs.nova.addon.machines.util.speedMultipliedValue
@@ -41,20 +41,20 @@ import kotlin.math.max
 
 private val BLOCKED_SIDES = enumSetOf(BlockSide.FRONT)
 
-private val MAX_ENERGY = ALLOY_SMELTER.config.entry<Long>("capacity")
-private val ENERGY_PER_TICK = ALLOY_SMELTER.config.entry<Long>("energy_per_tick")
-private val ALLOY_SMELTER_SPEED = ALLOY_SMELTER.config.entry<Int>("speed")
+private val MAX_ENERGY = IMPLOSION_COMPRESSOR.config.entry<Long>("capacity")
+private val ENERGY_PER_TICK = IMPLOSION_COMPRESSOR.config.entry<Long>("energy_per_tick")
+private val IMPLOSION_COMPRESSOR_SPEED = IMPLOSION_COMPRESSOR.config.entry<Int>("speed")
 
-class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : NetworkedTileEntity(pos, blockState, data) {
+class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compound) : NetworkedTileEntity(pos, blockState, data) {
 
-    private val inputInv = storedInventory("input", 3, true, IntArray(3) { 64 }, ::handleInputUpdate, null)
+    private val inputInv = storedInventory("input", 2, true, IntArray(2) { 64 }, ::handleInputUpdate, null)
     private val outputInv = storedInventory("output", 2, ::handleOutputUpdate)
     private val upgradeHolder = storedUpgradeHolder(UpgradeTypes.SPEED, UpgradeTypes.EFFICIENCY, UpgradeTypes.ENERGY)
     private val energyHolder = storedEnergyHolder(MAX_ENERGY, upgradeHolder, INSERT, BLOCKED_SIDES)
     private val itemHolder = storedItemHolder(inputInv to INSERT, outputInv to EXTRACT, blockedSides = BLOCKED_SIDES)
 
     private val energyPerTick by energyConsumption(ENERGY_PER_TICK, upgradeHolder)
-    private val alloySmelterSpeed by speedMultipliedValue(ALLOY_SMELTER_SPEED, upgradeHolder)
+    private val implosionCompressorSpeed by speedMultipliedValue(IMPLOSION_COMPRESSOR_SPEED, upgradeHolder)
     
     private var active: Boolean = blockState.getOrThrow(BlockStateProperties.ACTIVE)
         set(active) {
@@ -64,10 +64,10 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
             }
         }
 
-    private var timeLeft by storedValue("alloySmelterTime") { 0 }
+    private var timeLeft by storedValue("implosionCompressorTime") { 0 }
 
-    private var currentRecipe: AlloySmelterRecipe? by storedValue<Key>("currentRecipe").mapNonNull(
-        { RecipeManager.getRecipe(RecipeTypes.ALLOY_SMELTER, it) },
+    private var currentRecipe: ImplosionCompressorRecipe? by storedValue<Key>("currentRecipe").mapNonNull(
+        { RecipeManager.getRecipe(RecipeTypes.IMPLOSION_COMPRESSOR, it) },
         NovaRecipe::id
     )
 
@@ -97,7 +97,7 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
                     particleTask.stop()
                 active = false
             } else {
-                timeLeft = max(timeLeft - alloySmelterSpeed, 0)
+                timeLeft = max(timeLeft - implosionCompressorSpeed, 0)
                 energyHolder.energy -= energyPerTick
 
                 if (!particleTask.isRunning())
@@ -109,7 +109,7 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
                     currentRecipe = null
                 }
 
-                menuContainer.forEachMenu(AlloySmelterMenu::updateProgress)
+                menuContainer.forEachMenu(ImplosionCompressorMenu::updateProgress)
             }
 
         } else {
@@ -126,9 +126,9 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
 
         if (inputItems.isEmpty()) return
 
-        // Get all alloy smelter recipes
-        val allRecipes = RecipeManager.novaRecipes[RecipeTypes.ALLOY_SMELTER]?.values
-            ?.filterIsInstance<AlloySmelterRecipe>() ?: return
+        // Get all implosion compressor recipes
+        val allRecipes = RecipeManager.novaRecipes[RecipeTypes.IMPLOSION_COMPRESSOR]?.values
+            ?.filterIsInstance<ImplosionCompressorRecipe>() ?: return
 
         // Find a matching recipe
         recipeLoop@ for (recipe in allRecipes) {
@@ -178,13 +178,13 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
     }
 
     @TileEntityMenuClass
-    inner class AlloySmelterMenu : GlobalTileEntityMenu() {
+    inner class ImplosionCompressorMenu : GlobalTileEntityMenu() {
 
         private val mainProgress = ProgressArrowItem()
-        private val alloySmelterProgress = AlloySmelterProgressItem()
+        private val implosionCompressorProgress = ImplosionCompressorProgressItem()
 
         private val sideConfigGui = SideConfigMenu(
-            this@AlloySmelter,
+            this@ImplosionCompressor,
             mapOf(
                 itemHolder.getNetworkedInventory(inputInv) to "inventory.nova.input",
                 itemHolder.getNetworkedInventory(outputInv) to "inventory.nova.output"
@@ -197,12 +197,12 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
                 "1 - - - - - - - 2",
                 "| i # # # # # e |",
                 "| i # , # o a e |",
-                "| i # c # s u e |",
+                "| # # c # s u e |",
                 "3 - - - - - - - 4")
             .addIngredient('i', inputInv)
             .addIngredient('o', outputInv)
             .addIngredient(',', mainProgress)
-            .addIngredient('c', alloySmelterProgress)
+            .addIngredient('c', implosionCompressorProgress)
             .addIngredient('s', OpenSideConfigItem(sideConfigGui))
             .addIngredient('u', OpenUpgradesItem(upgradeHolder))
             .addIngredient('e', EnergyBar(3, energyHolder))
@@ -216,7 +216,7 @@ class AlloySmelter(pos: BlockPos, blockState: NovaBlockState, data: Compound) : 
             val recipeTime = currentRecipe?.time ?: 0
             val percentage = if (timeLeft == 0) 0.0 else (recipeTime - timeLeft).toDouble() / recipeTime.toDouble()
             mainProgress.percentage = percentage
-            alloySmelterProgress.percentage = percentage
+            implosionCompressorProgress.percentage = percentage
         }
 
     }

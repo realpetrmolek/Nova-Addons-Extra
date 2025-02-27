@@ -50,6 +50,32 @@ object AlloySmelterRecipeDeserializer : RecipeDeserializer<AlloySmelterRecipe> {
     }
 }
 
+object ImplosionCompressorRecipeDeserializer : RecipeDeserializer<ImplosionCompressorRecipe> {
+
+    override fun deserialize(json: JsonObject, file: File): ImplosionCompressorRecipe {
+        // Parse inputs array
+        val inputs = json.getAsJsonArray("inputs").map { ItemUtils.getRecipeChoice(listOf(it.asString)) }
+        require(inputs.all { it.getInputStacks().size == 1 })
+
+        // Get result item
+        val resultItem = ItemUtils.getItemStack(json.getString("result"))
+
+        // Apply amount if specified
+        if (json.has("amount")) {
+            resultItem.amount = json.get("amount").asInt
+        }
+
+        // Get processing time
+        val time = json.getIntOrNull("time") ?: 0
+
+        return ImplosionCompressorRecipe(
+            getRecipeKey(file),
+            inputs, resultItem,
+            time
+        )
+    }
+}
+
 object PlatePressRecipeDeserializer : ConversionRecipeDeserializer<PlatePressRecipe>() {
     override fun createRecipe(json: JsonObject, id: Key, input: RecipeChoice, result: ItemStack, time: Int) =
         PlatePressRecipe(id, input, result, time)

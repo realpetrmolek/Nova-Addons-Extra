@@ -85,3 +85,12 @@ class AlloySmelterRecipe(
 ) : NovaRecipe, MultiInputChoiceRecipe {
     override val type = RecipeTypes.ALLOY_SMELTER
 }
+
+class ImplosionCompressorRecipe(
+    override val id: Key,
+    override val inputs: List<RecipeChoice>,
+    val result: ItemStack,
+    val time: Int,
+) : NovaRecipe, MultiInputChoiceRecipe {
+    override val type = RecipeTypes.IMPLOSION_COMPRESSOR
+}

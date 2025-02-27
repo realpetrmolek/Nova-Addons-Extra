@@ -1,0 +1,4 @@
+capacity: 100000
+energy_per_tick: 75
+implosion_compressing_time: 300
+speed: 1

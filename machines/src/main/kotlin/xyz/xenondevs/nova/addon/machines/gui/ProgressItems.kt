@@ -5,6 +5,8 @@ import xyz.xenondevs.nova.ui.menu.item.ProgressItem
 
 class AlloySmelterProgressItem : ProgressItem(GuiItems.ALLOY_SMELTER_PROGRESS)
 
+class ImplosionCompressorProgressItem : ProgressItem(GuiItems.IMPLOSION_COMPRESSOR_PROGRESS)
+
 class EnergyProgressItem : ProgressItem(GuiItems.ENERGY_PROGRESS)
 
 class ProgressArrowItem : ProgressItem(GuiItems.ARROW_PROGRESS)

@@ -1,0 +1,6 @@
+{
+  "inputs": ["minecraft:cobblestone", "minecraft:tnt"],
+  "result": "minecraft:diamond",
+  "amount": 1,
+  "time": 300
+}
