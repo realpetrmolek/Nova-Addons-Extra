@@ -1,7 +1,10 @@
 package xyz.xenondevs.nova.addon.machines.tileentity.processing
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import net.kyori.adventure.key.Key
 import net.minecraft.core.particles.ParticleTypes
+import org.bukkit.block.BlockFace
 import org.bukkit.inventory.ItemStack
 import xyz.xenondevs.cbf.Compound
 import xyz.xenondevs.commons.collections.enumSetOf
@@ -14,6 +17,9 @@ import xyz.xenondevs.nova.addon.machines.recipe.ImplosionCompressorRecipe
 import xyz.xenondevs.nova.addon.machines.registry.BlockStateProperties
 import xyz.xenondevs.nova.addon.machines.registry.Blocks.IMPLOSION_COMPRESSOR
 import xyz.xenondevs.nova.addon.machines.registry.RecipeTypes
+import xyz.xenondevs.nova.addon.machines.tileentity.multiblock.MultiblockOrientation
+import xyz.xenondevs.nova.addon.machines.tileentity.multiblock.MultiblockStructure
+import xyz.xenondevs.nova.addon.machines.tileentity.multiblock.isMultiblockValid
 import xyz.xenondevs.nova.addon.machines.util.energyConsumption
 import xyz.xenondevs.nova.addon.machines.util.speedMultipliedValue
 import xyz.xenondevs.nova.addon.simpleupgrades.gui.OpenUpgradesItem
@@ -37,6 +43,7 @@ import xyz.xenondevs.nova.world.block.tileentity.network.type.NetworkConnectionT
 import xyz.xenondevs.nova.world.block.tileentity.network.type.NetworkConnectionType.INSERT
 import xyz.xenondevs.nova.world.item.recipe.NovaRecipe
 import xyz.xenondevs.nova.world.item.recipe.RecipeManager
+import java.lang.reflect.Type
 import kotlin.math.max
 
 private val BLOCKED_SIDES = enumSetOf(BlockSide.FRONT)
@@ -45,17 +52,49 @@ private val MAX_ENERGY = IMPLOSION_COMPRESSOR.config.entry<Long>("capacity")
 private val ENERGY_PER_TICK = IMPLOSION_COMPRESSOR.config.entry<Long>("energy_per_tick")
 private val IMPLOSION_COMPRESSOR_SPEED = IMPLOSION_COMPRESSOR.config.entry<Int>("speed")
 
+// Parse multiblock configuration from JSON string or fallback to traditional config
+private val MULTIBLOCK_STRUCTURE = run {
+    // Try to read from JSON string first
+    try {
+        // Read the multiblock_json field as a JSON string
+        val multiblockJson = IMPLOSION_COMPRESSOR.config.entry<String>("multiblock_json").get()
+
+        // Define type for the multiblock JSON structure
+        data class MultiblockConfig(
+            val structure: List<List<String>>,
+            val mapping: Map<String, String>
+        )
+
+        // Parse the JSON
+        val type: Type = object : TypeToken<MultiblockConfig>() {}.type
+        val config = Gson().fromJson<MultiblockConfig>(multiblockJson, type)
+
+        // Convert string keys to char keys for the mapping
+        val charMapping = config.mapping.entries.associate { (k, v) -> k.single() to v }
+
+        // Create the multiblock structure
+        MultiblockStructure(config.structure, charMapping)
+    } catch (e: Exception) {
+        // Fallback to traditional config format
+        val pattern = IMPLOSION_COMPRESSOR.config.entry<List<List<String>>>("multiblock.structure").get()
+        val mapping = IMPLOSION_COMPRESSOR.config.entry<Map<String, String>>("multiblock.mapping").get()
+            .entries.associate { (k, v) -> k.single() to v }
+
+        MultiblockStructure(pattern, mapping)
+    }
+}
+
 class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compound) : NetworkedTileEntity(pos, blockState, data) {
 
-    private val inputInv = storedInventory("input", 2, true, IntArray(2) { 64 }, ::handleInputUpdate)
-    private val outputInv = storedInventory("output", 2, true, IntArray(2) { 64 },  ::handleOutputUpdate)
+    private val inputInv = storedInventory("input", 2, false, IntArray(2) { 64 }, ::handleInputUpdate)
+    private val outputInv = storedInventory("output", 2, false, IntArray(2) { 64 },  ::handleOutputUpdate)
     private val upgradeHolder = storedUpgradeHolder(UpgradeTypes.SPEED, UpgradeTypes.EFFICIENCY, UpgradeTypes.ENERGY)
     private val energyHolder = storedEnergyHolder(MAX_ENERGY, upgradeHolder, INSERT, BLOCKED_SIDES)
     private val itemHolder = storedItemHolder(inputInv to INSERT, outputInv to EXTRACT, blockedSides = BLOCKED_SIDES)
 
     private val energyPerTick by energyConsumption(ENERGY_PER_TICK, upgradeHolder)
     private val implosionCompressorSpeed by speedMultipliedValue(IMPLOSION_COMPRESSOR_SPEED, upgradeHolder)
-    
+
     private var active: Boolean = blockState.getOrThrow(BlockStateProperties.ACTIVE)
         set(active) {
             if (field != active) {
@@ -65,6 +104,13 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
         }
 
     private var timeLeft by storedValue("implosionCompressorTime") { 0 }
+
+    // Track multiblock validation state
+    private var multiblockValid by storedValue("multiblockValid") { false }
+    private val facing: BlockFace
+        get() = blockState.getOrThrow(DefaultBlockStateProperties.FACING)
+    private val orientation: MultiblockOrientation
+        get() = MultiblockOrientation.fromBlockFace(facing)
 
     private var currentRecipe: ImplosionCompressorRecipe? by storedValue<Key>("currentRecipe").mapNonNull(
         { RecipeManager.getRecipe(RecipeTypes.IMPLOSION_COMPRESSOR, it) },
@@ -88,7 +134,38 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
         active = false
     }
 
+    private fun validateMultiblock() {
+        try {
+            // Check if the multiblock structure is valid
+            multiblockValid = isMultiblockValid(MULTIBLOCK_STRUCTURE, orientation)
+        } catch (e: Exception) {
+            multiblockValid = false
+        }
+    }
+
     override fun handleTick() {
+        try {
+            // Should the machine be active? (has energy and recipe in progress)
+            val shouldBeActive = energyHolder.energy >= energyPerTick && timeLeft > 0
+
+            // Check multiblock structure only when trying to operate
+            // or when starting a new recipe (timeLeft == 0 and we have energy)
+            if (active) {
+                validateMultiblock()
+            }
+
+            // Cannot operate if multiblock is invalid
+            if (!multiblockValid) {
+                if (particleTask.isRunning()) {
+                    particleTask.stop()
+                }
+                active = false
+                return
+            }
+        } catch (e: Exception) {
+            active = false
+        }
+
         if (energyHolder.energy >= energyPerTick) {
             if (timeLeft == 0) {
                 takeItem()
@@ -129,16 +206,21 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
         // Get all non-empty input items
         val inputItems = inputInv.items.filterNotNull()
 
-        if (inputItems.isEmpty()) return
+        if (inputItems.isEmpty()) {
+            return
+        }
 
         // Get all implosion compressor recipes
         val allRecipes = RecipeManager.novaRecipes[RecipeTypes.IMPLOSION_COMPRESSOR]?.values
             ?.filterIsInstance<ImplosionCompressorRecipe>() ?: return
 
         // Find a matching recipe
-        recipeLoop@ for (recipe in allRecipes) {
+        recipeLoop@ for ((recipeIndex, recipe) in allRecipes.withIndex()) {
+
             // Check if we have enough input items
-            if (recipe.inputs.size > inputItems.size) continue
+            if (recipe.inputs.size > inputItems.size) {
+                continue
+            }
 
             // Create a mutable map of slot index to item stack
             val availableItemsBySlot = inputInv.items.withIndex()
@@ -149,14 +231,17 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
             // Try to match each input choice
             val matchedInputs = mutableListOf<Pair<Int, ItemStack>>() // Pair of slot index and item
 
+            var allInputsMatched = true
             for ((index, choice) in recipe.inputs.withIndex()) {
                 // Get required count for this input (default to 1 if not specified)
-                val requiredCount = if (recipe.inputCounts.isNotEmpty() && index < recipe.inputCounts.size) 
+                val requiredCount = if (recipe.inputCounts.isNotEmpty() && index < recipe.inputCounts.size)
                     recipe.inputCounts[index] else 1
-                
+
                 // Find slot with matching item and enough quantity
-                val matchingEntry = availableItemsBySlot.entries.firstOrNull { (_, item) -> 
-                    choice.test(item) && item.amount >= requiredCount 
+                val matchingEntry = availableItemsBySlot.entries.firstOrNull { (_, item) ->
+                    val testResult = choice.test(item)
+                    val hasEnough = item.amount >= requiredCount
+                    testResult && hasEnough
                 }
 
                 if (matchingEntry != null) {
@@ -165,31 +250,34 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
                     matchedInputs.add(Pair(slotIndex, item))
                 } else {
                     // If any input can't be matched, move to the next recipe
+                    allInputsMatched = false
                     continue@recipeLoop
                 }
             }
 
             // If we got here, we matched all inputs
             // Check if we can hold ALL outputs
+            val outputs = recipe.outputs.map { "${it.type}:${it.amount}" }.joinToString()
+
             val canHoldAllOutputs = recipe.outputs.all { outputInv.canHold(it) }
-            
+
             if (canHoldAllOutputs) {
                 // Remove the required amount of each matched item
                 for (i in matchedInputs.indices) {
-                    val (slotIndex, _) = matchedInputs[i]
-                    val requiredCount = if (recipe.inputCounts.isNotEmpty() && i < recipe.inputCounts.size) 
+                    val (slotIndex, item) = matchedInputs[i]
+                    val requiredCount = if (recipe.inputCounts.isNotEmpty() && i < recipe.inputCounts.size)
                         recipe.inputCounts[i] else 1
-                    
+
                     // Get the item directly from the inventory to ensure we're working with the current state
-                    val item = inputInv.getItem(slotIndex)
-                    if (item != null && item.amount >= requiredCount) {
+                    val currentItem = inputInv.getItem(slotIndex)
+                    if (currentItem != null && currentItem.amount >= requiredCount) {
                         // If there's exactly the required count, remove the item completely
-                        if (item.amount == requiredCount) {
+                        if (currentItem.amount == requiredCount) {
                             inputInv.setItem(SELF_UPDATE_REASON, slotIndex, null)
                         } else {
                             // Otherwise reduce the amount
-                            item.amount -= requiredCount
-                            inputInv.setItem(SELF_UPDATE_REASON, slotIndex, item)
+                            currentItem.amount -= requiredCount
+                            inputInv.setItem(SELF_UPDATE_REASON, slotIndex, currentItem)
                         }
                     }
                 }
@@ -243,6 +331,8 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
 
         init {
             updateProgress()
+            // Validate multiblock on GUI open
+            validateMultiblock()
         }
 
         fun updateProgress() {
@@ -250,8 +340,13 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
             val percentage = if (timeLeft == 0) 0.0 else (recipeTime - timeLeft).toDouble() / recipeTime.toDouble()
             mainProgress.percentage = percentage
             implosionCompressorProgress.percentage = percentage
-        }
 
+            // Disable progress indicators if multiblock is invalid
+            if (!multiblockValid) {
+                mainProgress.percentage = 0.0
+                implosionCompressorProgress.percentage = 0.0
+            }
+        }
     }
 
 }

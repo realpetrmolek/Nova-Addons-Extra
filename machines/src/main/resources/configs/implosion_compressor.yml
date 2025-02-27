@@ -3,28 +3,16 @@ energy_per_tick: 75
 implosion_compressing_time: 300
 speed: 1
 
-# Multiblock structure configuration
+multiblock_json: '{"structure":[["srs","rrr","srs"],["rrr","r r","rrr"],["srs","rrr","srs"],["***","*c*","***"]],"mapping":{"c":"machines:implosion_compressor","s":"machines:standard_machine_casing","r":"machines:reinforced_machine_casing"," ":"minecraft:air"}}'
+
+# Traditional multiblock structure (as fallback)
 multiblock:
-  pattern:
-    # Controller layer
-    - - "***"
-      - "*c*"
-      - "***"
-    # Top layer
-    - - "srs"
-      - "rrr"
-      - "srs"
-    # Middle layer
-    - - "rrr"
-      - "r r"
-      - "rrr"
-    # Bottom layer
-    - - "srs"
-      - "rrr"
-      - "srs"
-  
-  # Block definitions for pattern letters
-  blocks:
+  structure:
+    - ["srs", "rrr", "srs"]  # Bottom layer
+    - ["rrr", "r r", "rrr"]  # Middle layer 
+    - ["srs", "rrr", "srs"]  # Top layer
+    - ["***", "*c*", "***"]  # Controller layer (now at the top)
+  mapping:
     "c": "machines:implosion_compressor"
     "s": "machines:standard_machine_casing"
     "r": "machines:reinforced_machine_casing"

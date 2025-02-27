@@ -2,6 +2,7 @@ package xyz.xenondevs.nova.addon.machines.tileentity.multiblock
 
 import org.bukkit.Material
 import org.bukkit.block.BlockFace
+import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.nova.util.id
 import xyz.xenondevs.nova.world.BlockPos
 import xyz.xenondevs.nova.world.block.tileentity.TileEntity
@@ -77,10 +78,14 @@ class MultiblockStructure(
             for ((rowIdx, row) in layer.withIndex()) {
                 for ((colIdx, char) in row.withIndex()) {
                     // Skip empty spaces
-                    if (char == ' ' || char == '\u0000') continue
+                    if (char == ' ' || char == '\u0000') {
+                        continue
+                    }
                     
                     // If this is the controller position, skip it since we already know it's valid
-                    if (layerIdx == controllerLayer && rowIdx == controllerRow && colIdx == controllerCol) continue
+                    if (layerIdx == controllerLayer && rowIdx == controllerRow && colIdx == controllerCol) {
+                        continue
+                    }
                     
                     // Calculate relative position from controller
                     val relX = colIdx - controllerCol
@@ -102,9 +107,6 @@ class MultiblockStructure(
                         controller.pos.z + rotZ
                     )
                     
-                    // Wildcard character - any block is acceptable
-                    if (char == wildCardChar) continue
-                    
                     // Check if the block matches what's expected
                     if (!isBlockValid(blockPos, char)) {
                         return false
@@ -120,11 +122,21 @@ class MultiblockStructure(
      * Checks if a block at the given position matches what's expected in the pattern.
      */
     private fun isBlockValid(pos: BlockPos, patternChar: Char): Boolean {
+        // Wildcard character - any block is acceptable
+        if (patternChar == wildCardChar) {
+            return true
+        }
+        
         val requiredId = blocks[patternChar] ?: return false
         
         // Get the actual block ID at this position 
         val block = pos.block
         val actualId = block.id?.toString()
+        
+        // Special case for ANY_BLOCK wildcard
+        if (requiredId == "ANY_BLOCK") {
+            return true
+        }
         
         // For air blocks
         if (requiredId == "minecraft:air") {
