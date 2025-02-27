@@ -1,0 +1,6 @@
+{
+  "input": "machines:tin_dust",
+  "result": "machines:tin_ingot",
+  "experience": 0.4,
+  "cookingTime": 200
+}

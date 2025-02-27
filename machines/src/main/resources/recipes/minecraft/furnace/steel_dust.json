@@ -1,0 +1,6 @@
+{
+  "input": "machines:steel_dust",
+  "result": "machines:steel_ingot",
+  "experience": 0.7,
+  "cookingTime": 200
+}

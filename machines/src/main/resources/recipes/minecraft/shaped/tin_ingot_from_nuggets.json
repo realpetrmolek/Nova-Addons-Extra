@@ -1,0 +1,12 @@
+{
+  "result": "machines:tin_ingot",
+  "amount": 1,
+  "shape": [
+    "###",
+    "###",
+    "###"
+  ],
+  "ingredients": {
+    "#": "machines:tin_nugget"
+  }
+}

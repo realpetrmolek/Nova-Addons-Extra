@@ -1,0 +1,5 @@
+{
+  "input": "machines:bronze_ingot",
+  "result": "machines:bronze_gear",
+  "time": 200
+}

@@ -79,6 +79,9 @@ object Items : ItemRegistry by Machines.registry {
     val REDSTONE_PLATE = registerItem("redstone_plate")
     val LAPIS_PLATE = registerItem("lapis_plate")
     val COPPER_PLATE = registerItem("copper_plate")
+    val BRONZE_PLATE = registerItem("bronze_plate")
+    val STEEL_PLATE = registerItem("steel_plate")
+    val TIN_PLATE = registerItem("tin_plate")
     
     // Gears
     val IRON_GEAR = registerItem("iron_gear")
@@ -89,6 +92,9 @@ object Items : ItemRegistry by Machines.registry {
     val REDSTONE_GEAR = registerItem("redstone_gear")
     val LAPIS_GEAR = registerItem("lapis_gear")
     val COPPER_GEAR = registerItem("copper_gear")
+    val BRONZE_GEAR = registerItem("bronze_gear")
+    val STEEL_GEAR = registerItem("steel_gear")
+    val TIN_GEAR = registerItem("tin_gear")
     
     // Dusts
     val IRON_DUST = registerItem("iron_dust")
@@ -100,6 +106,17 @@ object Items : ItemRegistry by Machines.registry {
     val COAL_DUST = registerItem("coal_dust")
     val COPPER_DUST = registerItem("copper_dust")
     val STAR_DUST = registerItem("star_dust")
+    val BRONZE_DUST = registerItem("bronze_dust")
+    val STEEL_DUST = registerItem("steel_dust")
+    val TIN_DUST = registerItem("tin_dust")
+    
+    // Ingots & Nuggets
+    val BRONZE_INGOT = registerItem("bronze_ingot")
+    val STEEL_INGOT = registerItem("steel_ingot")
+    val TIN_INGOT = registerItem("tin_ingot")
+    val BRONZE_NUGGET = registerItem("bronze_nugget")
+    val STEEL_NUGGET = registerItem("steel_nugget")
+    val TIN_NUGGET = registerItem("tin_nugget")
     
     // Industrial Crystals
     val INDUSTRIAL_DIAMOND_CRYSTAL = registerItem("industrial_diamond_crystal")

@@ -1,0 +1,8 @@
+{
+  "result": "machines:bronze_dust",
+  "amount": 3,
+  "ingredients": {
+    "nova:copper_dust": 2,
+    "machines:tin_dust": 1
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "input": "machines:tin_ingot",
+  "result": "machines:tin_plate",
+  "time": 200
+}

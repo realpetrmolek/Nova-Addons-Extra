@@ -1,0 +1,5 @@
+{
+  "input": "machines:steel_ingot",
+  "result": "machines:steel_gear",
+  "time": 200
+}

@@ -1,8 +1,10 @@
 {
   "inputs": [
-    "minecraft:dirt"
+    "minecraft:copper_ingot",
+    "machines:tin_ingot",
+    "minecraft:copper_ingot"
   ],
-  "result": "minecraft:iron_ingot",
-  "amount": 1,
+  "result": "machines:bronze_ingot",
+  "amount": 3,
   "time": 1000
 }

@@ -1,0 +1,7 @@
+{
+  "result": "machines:steel_nugget",
+  "amount": 9,
+  "ingredients": {
+    "machines:steel_ingot": 1
+  }
+}

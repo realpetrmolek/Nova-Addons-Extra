@@ -1,0 +1,6 @@
+{
+  "input": "machines:bronze_dust",
+  "result": "machines:bronze_ingot",
+  "experience": 0.5,
+  "cookingTime": 200
+}

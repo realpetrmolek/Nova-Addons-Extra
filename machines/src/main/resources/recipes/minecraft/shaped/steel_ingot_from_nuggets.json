@@ -1,0 +1,12 @@
+{
+  "result": "machines:steel_ingot",
+  "amount": 1,
+  "shape": [
+    "###",
+    "###",
+    "###"
+  ],
+  "ingredients": {
+    "#": "machines:steel_nugget"
+  }
+}

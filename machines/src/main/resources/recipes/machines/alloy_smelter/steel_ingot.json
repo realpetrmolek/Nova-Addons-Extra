@@ -1,10 +1,10 @@
 {
   "inputs": [
-    "minecraft:coal",
+    "machines:coal_dust",
     "minecraft:iron_ingot",
-    "minecraft:gold_ingot"
+    "machines:coal_dust"
   ],
-  "result": "minecraft:diamond",
+  "result": "machines:steel_ingot",
   "amount": 1,
-  "time": 1000
+  "time": 2400
 }

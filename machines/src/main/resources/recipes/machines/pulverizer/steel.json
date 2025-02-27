@@ -1,0 +1,10 @@
+{
+  "input": [
+    "machines:steel_ingot",
+    "machines:steel_plate",
+    "machines:steel_gear"
+  ],
+  "result": "machines:steel_dust",
+  "amount": 1,
+  "time": 200
+}

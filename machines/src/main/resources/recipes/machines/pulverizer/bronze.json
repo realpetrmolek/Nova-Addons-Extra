@@ -1,0 +1,10 @@
+{
+  "input": [
+    "machines:bronze_ingot",
+    "machines:bronze_plate",
+    "machines:bronze_gear"
+  ],
+  "result": "machines:bronze_dust",
+  "amount": 1,
+  "time": 200
+}

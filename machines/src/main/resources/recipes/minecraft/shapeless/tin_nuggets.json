@@ -1,0 +1,7 @@
+{
+  "result": "machines:tin_nugget",
+  "amount": 9,
+  "ingredients": {
+    "machines:tin_ingot": 1
+  }
+}

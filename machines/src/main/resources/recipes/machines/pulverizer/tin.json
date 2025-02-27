@@ -1,0 +1,10 @@
+{
+  "input": [
+    "machines:tin_ingot",
+    "machines:tin_plate",
+    "machines:tin_gear"
+  ],
+  "result": "machines:tin_dust",
+  "amount": 1,
+  "time": 200
+}

@@ -1,0 +1,12 @@
+{
+  "result": "machines:bronze_ingot",
+  "amount": 1,
+  "shape": [
+    "###",
+    "###",
+    "###"
+  ],
+  "ingredients": {
+    "#": "machines:bronze_nugget"
+  }
+}
