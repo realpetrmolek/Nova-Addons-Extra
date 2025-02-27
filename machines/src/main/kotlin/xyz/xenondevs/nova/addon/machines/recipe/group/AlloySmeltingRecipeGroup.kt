@@ -8,5 +8,5 @@ import xyz.xenondevs.nova.ui.menu.explorer.recipes.group.ConversionRecipeGroup
 object AlloySmeltingRecipeGroup : ConversionRecipeGroup<AlloySmelterRecipe>() {
     override val priority = 4
     override val icon = Items.ALLOY_SMELTER.clientsideProvider
-    override val texture = GuiTextures.RECIPE_PULVERIZER
+    override val texture = GuiTextures.RECIPE_ALLOY_SMELTER
 }

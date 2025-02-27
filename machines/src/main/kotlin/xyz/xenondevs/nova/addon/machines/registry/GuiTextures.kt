@@ -20,5 +20,7 @@ object GuiTextures : GuiTextureRegistry by Machines.registry {
     val RECIPE_STAR_COLLECTOR = guiTexture("recipe_star_collector") { path("gui/recipe/star_collector") }
     val RECIPE_COBBLESTONE_GENERATOR = guiTexture("recipe_cobblestone_generator") { path("gui/recipe/cobblestone_generator") }
     val RECIPE_ELECTRIC_BREWING_STAND = guiTexture("recipe_electric_brewing_stand") { path("gui/recipe/electric_brewing_stand") }
+    val RECIPE_IMPLOSION_COMPRESSOR = guiTexture("recipe_implosion_compressor") { path("gui/recipe/implosion_compressor") }
+    val RECIPE_ALLOY_SMELTER = guiTexture("recipe_alloy_smelter") { path("gui/recipe/alloy_smelter") }
     
 }

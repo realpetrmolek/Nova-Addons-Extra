@@ -1,5 +1,5 @@
 {
-  "inputs": ["minecraft:cobblestone", "minecraft:tnt"],
+  "inputs": ["machines:diamond_dust", "minecraft:tnt"],
   "result": "minecraft:diamond",
   "amount": 1,
   "time": 300
