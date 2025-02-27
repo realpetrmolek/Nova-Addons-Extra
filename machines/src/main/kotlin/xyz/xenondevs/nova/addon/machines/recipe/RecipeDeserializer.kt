@@ -27,25 +27,36 @@ object PulverizerRecipeDeserializer : ConversionRecipeDeserializer<PulverizerRec
 object AlloySmelterRecipeDeserializer : RecipeDeserializer<AlloySmelterRecipe> {
 
     override fun deserialize(json: JsonObject, file: File): AlloySmelterRecipe {
-        // Parse inputs array
-        val inputs = json.getAsJsonArray("inputs").map { ItemUtils.getRecipeChoice(listOf(it.asString)) }
-        require(inputs.all { it.getInputStacks().size == 1 })
-
-        // Get result item
-        val resultItem = ItemUtils.getItemStack(json.getString("result"))
-
-        // Apply amount if specified
-        if (json.has("amount")) {
-            resultItem.amount = json.get("amount").asInt
+        // Parse inputs array with multiple items per input
+        val inputs = json.getAsJsonArray("inputs").map { inputObj ->
+            val items = inputObj.asJsonObject.getAsJsonArray("items").map { it.asString }
+            val count = inputObj.asJsonObject.getInt("count")
+            
+            val choice = ItemUtils.getRecipeChoice(items)
+            Pair(choice, count)
         }
-
+        
+        // Get outputs array
+        val outputs = json.getAsJsonArray("outputs").map { outputObj ->
+            val id = outputObj.asJsonObject.getString("id")
+            val amount = outputObj.asJsonObject.getInt("amount")
+            
+            val resultItem = ItemUtils.getItemStack(id)
+            resultItem.amount = amount
+            resultItem
+        }
+        
+        // Use first output as the main result
+        val resultItem = outputs.first()
+        
         // Get processing time
         val time = json.getIntOrNull("time") ?: 0
 
         return AlloySmelterRecipe(
             getRecipeKey(file),
-            inputs, resultItem,
-            time
+            inputs.map { it.first }, resultItem,
+            time,
+            inputs.map { it.second }
         )
     }
 }
@@ -53,25 +64,36 @@ object AlloySmelterRecipeDeserializer : RecipeDeserializer<AlloySmelterRecipe> {
 object ImplosionCompressorRecipeDeserializer : RecipeDeserializer<ImplosionCompressorRecipe> {
 
     override fun deserialize(json: JsonObject, file: File): ImplosionCompressorRecipe {
-        // Parse inputs array
-        val inputs = json.getAsJsonArray("inputs").map { ItemUtils.getRecipeChoice(listOf(it.asString)) }
-        require(inputs.all { it.getInputStacks().size == 1 })
-
-        // Get result item
-        val resultItem = ItemUtils.getItemStack(json.getString("result"))
-
-        // Apply amount if specified
-        if (json.has("amount")) {
-            resultItem.amount = json.get("amount").asInt
+        // Parse inputs array with multiple items per input
+        val inputs = json.getAsJsonArray("inputs").map { inputObj ->
+            val items = inputObj.asJsonObject.getAsJsonArray("items").map { it.asString }
+            val count = inputObj.asJsonObject.getInt("count")
+            
+            val choice = ItemUtils.getRecipeChoice(items)
+            Pair(choice, count)
         }
-
+        
+        // Get outputs array
+        val outputs = json.getAsJsonArray("outputs").map { outputObj ->
+            val id = outputObj.asJsonObject.getString("id")
+            val amount = outputObj.asJsonObject.getInt("amount")
+            
+            val resultItem = ItemUtils.getItemStack(id)
+            resultItem.amount = amount
+            resultItem
+        }
+        
+        // Use first output as the main result
+        val resultItem = outputs.first()
+        
         // Get processing time
         val time = json.getIntOrNull("time") ?: 0
 
         return ImplosionCompressorRecipe(
             getRecipeKey(file),
-            inputs, resultItem,
-            time
+            inputs.map { it.first }, resultItem,
+            time,
+            inputs.map { it.second }
         )
     }
 }

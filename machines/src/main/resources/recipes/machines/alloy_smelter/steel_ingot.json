@@ -1,10 +1,19 @@
 {
   "inputs": [
-    "machines:coal_dust",
-    "minecraft:iron_ingot",
-    "machines:coal_dust"
+    {
+      "items": ["machines:coal_dust"],
+      "count": 2
+    },
+    {
+      "items": ["minecraft:iron_ingot", "machines:iron_dust"],
+      "count": 1
+    }
   ],
-  "result": "machines:steel_ingot",
-  "amount": 1,
+  "outputs": [
+    {
+      "id": "machines:steel_ingot",
+      "amount": 1
+    }
+  ],
   "time": 2400
 }

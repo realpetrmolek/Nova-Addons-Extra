@@ -1,6 +1,19 @@
 {
-  "inputs": ["machines:emerald_dust", "minecraft:tnt"],
-  "result": "machines:industrial_beryl_crystal",
-  "amount": 1,
+  "inputs": [
+    {
+      "items": ["machines:emerald_dust"],
+      "count": 4
+    },
+    {
+      "items": ["minecraft:tnt"],
+      "count": 24
+    }
+  ],
+  "outputs": [
+    {
+      "id": "machines:industrial_beryl_crystal",
+      "amount": 3
+    }
+  ],
   "time": 40
 }

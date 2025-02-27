@@ -109,6 +109,7 @@ object Items : ItemRegistry by Machines.registry {
     val BRONZE_DUST = registerItem("bronze_dust")
     val STEEL_DUST = registerItem("steel_dust")
     val TIN_DUST = registerItem("tin_dust")
+    val DARK_ASHES = registerItem("dark_ashes")
     
     // Ingots & Nuggets
     val BRONZE_INGOT = registerItem("bronze_ingot")

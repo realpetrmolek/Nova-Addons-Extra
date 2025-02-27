@@ -1,6 +1,19 @@
 {
-  "inputs": ["minecraft:redstone_block", "minecraft:tnt"],
-  "result": "machines:industrial_redstone_crystal",
-  "amount": 1,
+  "inputs": [
+    {
+      "items": ["minecraft:redstone_block"],
+      "count": 4
+    },
+    {
+      "items": ["minecraft:tnt"],
+      "count": 24
+    }
+  ],
+  "outputs": [
+    {
+      "id": "machines:industrial_redstone_crystal",
+      "amount": 3
+    }
+  ],
   "time": 40
 }

@@ -1,6 +1,23 @@
 {
-  "inputs": ["machines:diamond_dust", "minecraft:tnt"],
-  "result": "machines:industrial_diamond_crystal",
-  "amount": 1,
+  "inputs": [
+    {
+      "items": ["machines:diamond_dust"],
+      "count": 4
+    },
+    {
+      "items": ["minecraft:tnt"],
+      "count": 32
+    }
+  ],
+  "outputs": [
+    {
+      "id": "machines:industrial_diamond_crystal",
+      "amount": 3
+    },
+    {
+      "id": "machines:dark_ashes",
+      "amount": 16
+    }
+  ],
   "time": 40
 }

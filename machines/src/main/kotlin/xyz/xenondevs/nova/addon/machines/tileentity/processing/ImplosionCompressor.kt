@@ -47,8 +47,8 @@ private val IMPLOSION_COMPRESSOR_SPEED = IMPLOSION_COMPRESSOR.config.entry<Int>(
 
 class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compound) : NetworkedTileEntity(pos, blockState, data) {
 
-    private val inputInv = storedInventory("input", 2, true, IntArray(2) { 64 }, ::handleInputUpdate, null)
-    private val outputInv = storedInventory("output", 2, ::handleOutputUpdate)
+    private val inputInv = storedInventory("input", 2, true, IntArray(2) { 64 }, ::handleInputUpdate)
+    private val outputInv = storedInventory("output", 2, true, IntArray(2) { 64 },  ::handleOutputUpdate)
     private val upgradeHolder = storedUpgradeHolder(UpgradeTypes.SPEED, UpgradeTypes.EFFICIENCY, UpgradeTypes.ENERGY)
     private val energyHolder = storedEnergyHolder(MAX_ENERGY, upgradeHolder, INSERT, BLOCKED_SIDES)
     private val itemHolder = storedItemHolder(inputInv to INSERT, outputInv to EXTRACT, blockedSides = BLOCKED_SIDES)
@@ -135,18 +135,29 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
             // Check if we have enough input items
             if (recipe.inputs.size > inputItems.size) continue
 
-            // Create a copy of the input items list to keep track of what we've matched
-            val availableItems = inputItems.toMutableList()
+            // Create a mutable map of slot index to item stack
+            val availableItemsBySlot = inputInv.items.withIndex()
+                .filter { it.value != null }
+                .associate { it.index to it.value!! }
+                .toMutableMap()
 
             // Try to match each input choice
-            val matchedInputs = mutableListOf<ItemStack>()
+            val matchedInputs = mutableListOf<Pair<Int, ItemStack>>() // Pair of slot index and item
 
-            for (choice in recipe.inputs) {
-                val matchIndex = availableItems.indexOfFirst { choice.test(it) }
-                if (matchIndex >= 0) {
-                    val item = availableItems[matchIndex]
-                    availableItems.removeAt(matchIndex)
-                    matchedInputs.add(item)
+            for ((index, choice) in recipe.inputs.withIndex()) {
+                // Get required count for this input (default to 1 if not specified)
+                val requiredCount = if (recipe.inputCounts.isNotEmpty() && index < recipe.inputCounts.size) 
+                    recipe.inputCounts[index] else 1
+                
+                // Find slot with matching item and enough quantity
+                val matchingEntry = availableItemsBySlot.entries.firstOrNull { (_, item) -> 
+                    choice.test(item) && item.amount >= requiredCount 
+                }
+
+                if (matchingEntry != null) {
+                    val (slotIndex, item) = matchingEntry
+                    availableItemsBySlot.remove(slotIndex)
+                    matchedInputs.add(Pair(slotIndex, item))
                 } else {
                     // If any input can't be matched, move to the next recipe
                     continue@recipeLoop
@@ -156,9 +167,24 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
             // If we got here, we matched all inputs
             // Check if we can hold the result
             if (outputInv.canHold(recipe.result)) {
-                // Remove the matched items from the inventory
-                for (item in matchedInputs) {
-                    inputInv.removeFirstSimilar(SELF_UPDATE_REASON, 1, item)
+                // Remove the required amount of each matched item
+                for (i in matchedInputs.indices) {
+                    val (slotIndex, _) = matchedInputs[i]
+                    val requiredCount = if (recipe.inputCounts.isNotEmpty() && i < recipe.inputCounts.size) 
+                        recipe.inputCounts[i] else 1
+                    
+                    // Get the item directly from the inventory to ensure we're working with the current state
+                    val item = inputInv.getItem(slotIndex)
+                    if (item != null && item.amount >= requiredCount) {
+                        // If there's exactly the required count, remove the item completely
+                        if (item.amount == requiredCount) {
+                            inputInv.setItem(SELF_UPDATE_REASON, slotIndex, null)
+                        } else {
+                            // Otherwise reduce the amount
+                            item.amount -= requiredCount
+                            inputInv.setItem(SELF_UPDATE_REASON, slotIndex, item)
+                        }
+                    }
                 }
 
                 timeLeft = recipe.time
@@ -196,7 +222,7 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
             .setStructure(
                 "1 - - - - - - - 2",
                 "| i # # # # # e |",
-                "| i # , # o a e |",
+                "| i # , # o o e |",
                 "| # # c # s u e |",
                 "3 - - - - - - - 4")
             .addIngredient('i', inputInv)

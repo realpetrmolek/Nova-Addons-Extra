@@ -82,6 +82,7 @@ class AlloySmelterRecipe(
     override val inputs: List<RecipeChoice>,
     val result: ItemStack,
     val time: Int,
+    val inputCounts: List<Int> = listOf()
 ) : NovaRecipe, MultiInputChoiceRecipe {
     override val type = RecipeTypes.ALLOY_SMELTER
 }
@@ -91,6 +92,7 @@ class ImplosionCompressorRecipe(
     override val inputs: List<RecipeChoice>,
     val result: ItemStack,
     val time: Int,
+    val inputCounts: List<Int> = listOf()
 ) : NovaRecipe, MultiInputChoiceRecipe {
     override val type = RecipeTypes.IMPLOSION_COMPRESSOR
 }
