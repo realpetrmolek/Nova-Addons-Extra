@@ -2,3 +2,30 @@ capacity: 100000
 energy_per_tick: 75
 implosion_compressing_time: 300
 speed: 1
+
+# Multiblock structure configuration
+multiblock:
+  pattern:
+    # Controller layer
+    - - "***"
+      - "*c*"
+      - "***"
+    # Top layer
+    - - "srs"
+      - "rrr"
+      - "srs"
+    # Middle layer
+    - - "rrr"
+      - "r r"
+      - "rrr"
+    # Bottom layer
+    - - "srs"
+      - "rrr"
+      - "srs"
+  
+  # Block definitions for pattern letters
+  blocks:
+    "c": "machines:implosion_compressor"
+    "s": "machines:standard_machine_casing"
+    "r": "machines:reinforced_machine_casing"
+    " ": "minecraft:air"
