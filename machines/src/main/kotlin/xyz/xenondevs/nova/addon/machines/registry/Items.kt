@@ -59,6 +59,9 @@ object Items : ItemRegistry by Machines.registry {
     val ELITE_MACHINE_FRAME = registerItem(Blocks.ELITE_MACHINE_FRAME)
     val ULTIMATE_MACHINE_FRAME = registerItem(Blocks.ULTIMATE_MACHINE_FRAME)
     val CREATIVE_MACHINE_FRAME = registerItem(Blocks.CREATIVE_MACHINE_FRAME)
+    val STANDARD_MACHINE_CASING = registerItem(Blocks.STANDARD_MACHINE_CASING)
+    val ADVANCED_MACHINE_CASING = registerItem(Blocks.ADVANCED_MACHINE_CASING)
+    val REINFORCED_MACHINE_CASING = registerItem(Blocks.REINFORCED_MACHINE_CASING)
     val STAR_DUST_BLOCK = registerItem(Blocks.STAR_DUST_BLOCK)
     val STAR_SHARDS_ORE = registerItem(Blocks.STAR_SHARDS_ORE)
     val DEEPSLATE_STAR_SHARDS_ORE = registerItem(Blocks.DEEPSLATE_STAR_SHARDS_ORE)
@@ -69,6 +72,9 @@ object Items : ItemRegistry by Machines.registry {
     val NETHERITE_DRILL = item("netherite_drill") { modelDefinition { model = buildModel { getModel("block/netherite_drill") } } }
     val SCAFFOLDING = registerItem("scaffolding")
     val SOLAR_CELL = registerItem("solar_cell")
+    val ELECTRONIC_CIRCUIT = registerItem("electronic_circuit")
+    val ADVANCED_ELECTRONIC_CIRCUIT = registerItem("advanced_electronic_circuit")
+    val DATA_CONTROL_CIRCUIT = registerItem("data_control_circuit")
     
     // Plates
     val IRON_PLATE = registerItem("iron_plate")

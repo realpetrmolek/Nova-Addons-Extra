@@ -131,6 +131,9 @@ object Blocks : BlockRegistry by Machines.registry {
     val ELITE_MACHINE_FRAME = machineFrame("elite")
     val ULTIMATE_MACHINE_FRAME = machineFrame("ultimate")
     val CREATIVE_MACHINE_FRAME = machineFrame("creative")
+    val STANDARD_MACHINE_CASING = nonInteractiveBlock("standard_machine_casing") { behaviors(METAL, BlockSounds(SoundGroup.METAL), BlockDrops) }
+    val ADVANCED_MACHINE_CASING = nonInteractiveBlock("advanced_machine_casing") { behaviors(METAL, BlockSounds(SoundGroup.METAL), BlockDrops) }
+    val REINFORCED_MACHINE_CASING = nonInteractiveBlock("reinforced_machine_casing") { behaviors(METAL, BlockSounds(SoundGroup.METAL), BlockDrops) }
     
     // Ores
     val STAR_SHARDS_ORE = nonInteractiveBlock("star_shards_ore") { behaviors(StarShardsOre, STONE_ORE, BlockSounds(SoundGroup.STONE)) }
