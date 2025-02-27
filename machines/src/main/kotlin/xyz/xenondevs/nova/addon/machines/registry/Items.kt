@@ -101,6 +101,11 @@ object Items : ItemRegistry by Machines.registry {
     val COPPER_DUST = registerItem("copper_dust")
     val STAR_DUST = registerItem("star_dust")
     
+    // Industrial Crystals
+    val INDUSTRIAL_DIAMOND_CRYSTAL = registerItem("industrial_diamond_crystal")
+    val INDUSTRIAL_BERYL_CRYSTAL = registerItem("industrial_beryl_crystal")
+    val INDUSTRIAL_REDSTONE_CRYSTAL = registerItem("industrial_redstone_crystal")
+    
     // Tools
     val STAR_SWORD = item("star_sword") {
         behaviors(Tool(), Damageable(), Enchantable())

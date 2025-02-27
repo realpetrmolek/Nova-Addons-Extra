@@ -1,0 +1,6 @@
+{
+  "inputs": ["minecraft:redstone_block", "minecraft:tnt"],
+  "result": "machines:industrial_redstone_crystal",
+  "amount": 1,
+  "time": 40
+}

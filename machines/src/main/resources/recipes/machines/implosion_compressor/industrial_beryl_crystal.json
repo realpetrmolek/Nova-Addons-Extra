@@ -1,0 +1,6 @@
+{
+  "inputs": ["machines:emerald_dust", "minecraft:tnt"],
+  "result": "machines:industrial_beryl_crystal",
+  "amount": 1,
+  "time": 40
+}

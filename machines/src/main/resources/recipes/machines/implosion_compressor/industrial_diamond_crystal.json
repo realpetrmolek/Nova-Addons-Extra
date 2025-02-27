@@ -1,0 +1,6 @@
+{
+  "inputs": ["machines:diamond_dust", "minecraft:tnt"],
+  "result": "machines:industrial_diamond_crystal",
+  "amount": 1,
+  "time": 40
+}
