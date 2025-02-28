@@ -60,22 +60,47 @@ private val MULTIBLOCK_STRUCTURE = run {
         // Read the multiblock_json field as a JSON string
         val multiblockJson = ELECTRIC_BLAST_FURNACE.config.entry<String>("multiblock_json").get()
 
-        // Define type for the multiblock JSON structure
-        data class MultiblockConfig(
-            val structure: List<List<String>>,
-            val mapping: Map<String, String>
-        )
-
         // Parse the JSON
-        val type: Type = object : TypeToken<MultiblockConfig>() {}.type
-        val config = Gson().fromJson<MultiblockConfig>(multiblockJson, type)
-
-        // Convert string keys to char keys for the mapping
-        val charMapping = config.mapping.entries.associate { (k, v) -> k.single() to v }
-
+        val jsonElement = Gson().fromJson(multiblockJson, com.google.gson.JsonElement::class.java)
+        val jsonObject = jsonElement.asJsonObject
+        
+        // Extract the structure
+        val structure = jsonObject.getAsJsonArray("structure").map { layerElement ->
+            layerElement.asJsonArray.map { rowElement ->
+                rowElement.asString
+            }
+        }
+        
+        // Extract the mapping with special handling for arrays
+        val mapping = jsonObject.getAsJsonObject("mapping").entrySet().associate { (key, value) ->
+            // Convert key to char
+            val charKey = key.single()
+            
+            // Handle value based on its JSON type
+            val mappingValue = when {
+                value.isJsonArray -> {
+                    // Convert JSON array to List<String>
+                    value.asJsonArray.map { it.asString }
+                }
+                value.isJsonPrimitive -> {
+                    // Simple string value
+                    value.asString
+                }
+                else -> {
+                    // Fallback for unexpected types
+                    value.toString()
+                }
+            }
+            
+            charKey to mappingValue
+        }
+        
         // Create the multiblock structure
-        MultiblockStructure(config.structure, charMapping)
+        MultiblockStructure(structure, mapping)
     } catch (e: Exception) {
+        // Print exception for debugging
+        e.printStackTrace()
+        
         // Fallback to traditional config format
         val pattern = ELECTRIC_BLAST_FURNACE.config.entry<List<List<String>>>("multiblock.structure").get()
         val mapping = ELECTRIC_BLAST_FURNACE.config.entry<Map<String, String>>("multiblock.mapping").get()

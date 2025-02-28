@@ -57,7 +57,7 @@ enum class MultiblockOrientation(val blockFace: BlockFace) {
  */
 class MultiblockStructure(
     val pattern: List<List<String>>,
-    val blocks: Map<Char, String>
+    val blocks: Map<Char, Any> // Changed to Any to support both String and List<String>
 ) {
     // Character that represents a wild card (any block is acceptable)
     private val wildCardChar = '*'
@@ -156,12 +156,16 @@ class MultiblockStructure(
         }
         
         // For air blocks
-        if (requiredId == "minecraft:air") {
+        if (requiredId is String && requiredId == "minecraft:air") {
             return block.type == Material.AIR
         }
         
-        // Return true if the block ID matches the required ID
-        return actualId == requiredId
+        // Handle both single string and list of strings cases
+        return when (requiredId) {
+            is String -> actualId == requiredId
+            is List<*> -> requiredId.any { it is String && actualId == it }
+            else -> false
+        }
     }
 }
 

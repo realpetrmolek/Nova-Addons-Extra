@@ -6,33 +6,33 @@ speed: 1
 multiblock_json: '{
    "structure":[
       [
-         "sss",
-         "sss",
-         "sss",
+         "mmm",
+         "mmm",
+         "mmm",
          "*c*"
       ],
       [
-         "sss",
-         "s*s",
-         "sss",
+         "mmm",
+         "m*m",
+         "mmm",
          "***"
       ],
       [
-         "sss",
-         "s*s",
-         "sss",
+         "mmm",
+         "m*m",
+         "mmm",
          "***"
       ],
       [
-         "sss",
-         "sss",
-         "sss",
+         "mmm",
+         "mmm",
+         "mmm",
          "***"
       ]
    ],
    "mapping":{
       "c":"machines:electric_blast_furnace",
-      "s":"machines:standard_machine_casing",
+      "m":["machines:standard_machine_casing", "machines:reinforced_machine_casing", "machines:advanced_machine_casing"],
       " ":"minecraft:air"
    }
 }'
