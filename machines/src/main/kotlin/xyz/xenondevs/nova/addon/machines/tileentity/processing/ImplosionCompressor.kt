@@ -184,7 +184,7 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
                 if (timeLeft == 0) {
                     currentRecipe?.let { recipe ->
                         // Add all output items to the output inventory
-                        recipe.outputs.forEach { output ->
+                        recipe.results.forEach { output ->
                             outputInv.addItem(SELF_UPDATE_REASON, output.clone())
                         }
                     }
@@ -257,9 +257,9 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
 
             // If we got here, we matched all inputs
             // Check if we can hold ALL outputs
-            val outputs = recipe.outputs.map { "${it.type}:${it.amount}" }.joinToString()
+            val outputs = recipe.results.map { "${it.type}:${it.amount}" }.joinToString()
 
-            val canHoldAllOutputs = recipe.outputs.all { outputInv.canHold(it) }
+            val canHoldAllOutputs = recipe.results.all { outputInv.canHold(it) }
 
             if (canHoldAllOutputs) {
                 // Remove the required amount of each matched item

@@ -8,7 +8,28 @@ import xyz.xenondevs.nova.addon.machines.registry.RecipeTypes
 import xyz.xenondevs.nova.world.block.tileentity.network.type.fluid.FluidType
 import xyz.xenondevs.nova.world.item.recipe.ConversionNovaRecipe
 import xyz.xenondevs.nova.world.item.recipe.MultiInputChoiceRecipe
+import xyz.xenondevs.nova.world.item.recipe.MultiResultRecipe
 import xyz.xenondevs.nova.world.item.recipe.NovaRecipe
+
+class AlloySmelterRecipe(
+    override val id: Key,
+    override val inputs: List<RecipeChoice>,
+    val time: Int,
+    val inputCounts: List<Int> = listOf(),
+    override val results: List<ItemStack> = listOf()
+) : NovaRecipe, MultiInputChoiceRecipe, MultiResultRecipe {
+    override val type = RecipeTypes.ALLOY_SMELTER
+}
+
+class ImplosionCompressorRecipe(
+    override val id: Key,
+    override val inputs: List<RecipeChoice>,
+    val time: Int,
+    val inputCounts: List<Int> = listOf(),
+    override val results: List<ItemStack> = listOf()
+) : NovaRecipe, MultiInputChoiceRecipe, MultiResultRecipe {
+    override val type = RecipeTypes.IMPLOSION_COMPRESSOR
+}
 
 class PulverizerRecipe(
     id: Key,
@@ -75,26 +96,4 @@ class CrystallizerRecipe(
     time: Int
 ) : ConversionNovaRecipe(id, input, result, time) {
     override val type = RecipeTypes.CRYSTALLIZER
-}
-
-class AlloySmelterRecipe(
-    override val id: Key,
-    override val inputs: List<RecipeChoice>,
-    val result: ItemStack,
-    val time: Int,
-    val inputCounts: List<Int> = listOf(),
-    val outputs: List<ItemStack> = listOf(result)
-) : NovaRecipe, MultiInputChoiceRecipe {
-    override val type = RecipeTypes.ALLOY_SMELTER
-}
-
-class ImplosionCompressorRecipe(
-    override val id: Key,
-    override val inputs: List<RecipeChoice>,
-    val result: ItemStack,
-    val time: Int,
-    val inputCounts: List<Int> = listOf(),
-    val outputs: List<ItemStack> = listOf(result)
-) : NovaRecipe, MultiInputChoiceRecipe {
-    override val type = RecipeTypes.IMPLOSION_COMPRESSOR
 }
