@@ -1,0 +1,6 @@
+{
+  "input": "nova:deepslate_tin_ore",
+  "result": "nova:tin_ingot",
+  "experience": 0.7,
+  "cookingTime": 200
+}

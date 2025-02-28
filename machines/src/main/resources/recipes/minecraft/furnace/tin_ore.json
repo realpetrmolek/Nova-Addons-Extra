@@ -1,0 +1,6 @@
+{
+  "input": "nova:tin_ore",
+  "result": "nova:tin_ingot",
+  "experience": 0.6,
+  "cookingTime": 200
+}

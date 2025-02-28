@@ -4,6 +4,7 @@ import net.minecraft.world.level.block.Blocks
 import org.bukkit.Material
 import xyz.xenondevs.nova.addon.machines.Machines
 import xyz.xenondevs.nova.addon.machines.block.StarShardsOre
+import xyz.xenondevs.nova.addon.machines.block.TinOre
 import xyz.xenondevs.nova.addon.machines.block.WindTurbineBehavior
 import xyz.xenondevs.nova.addon.machines.block.WindTurbineSectionBehavior
 import xyz.xenondevs.nova.addon.machines.tileentity.agriculture.AutoFisher
@@ -138,6 +139,8 @@ object Blocks : BlockRegistry by Machines.registry {
     // Ores
     val STAR_SHARDS_ORE = nonInteractiveBlock("star_shards_ore") { behaviors(StarShardsOre, STONE_ORE, BlockSounds(SoundGroup.STONE)) }
     val DEEPSLATE_STAR_SHARDS_ORE = nonInteractiveBlock("deepslate_star_shards_ore") { behaviors(StarShardsOre, DEEPSLATE_ORE, BlockSounds(SoundGroup.DEEPSLATE)) }
+    val TIN_ORE = nonInteractiveBlock("tin_ore") { behaviors(TinOre(false), STONE_ORE, BlockSounds(SoundGroup.STONE)) }
+    val DEEPSLATE_TIN_ORE = nonInteractiveBlock("deepslate_tin_ore") { behaviors(TinOre(true), DEEPSLATE_ORE, BlockSounds(SoundGroup.DEEPSLATE)) }
     
     private fun activeMachine(
         name: String,

@@ -1,0 +1,6 @@
+{
+  "input": "nova:raw_tin",
+  "result": "nova:tin_dust",
+  "amount": 2,
+  "time": 150
+}

@@ -1,0 +1,9 @@
+{
+  "input": [
+    "nova:tin_ore",
+    "nova:deepslate_tin_ore"
+  ],
+  "result": "nova:tin_dust",
+  "amount": 2,
+  "time": 200
+}

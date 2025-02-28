@@ -65,6 +65,8 @@ object Items : ItemRegistry by Machines.registry {
     val STAR_DUST_BLOCK = registerItem(Blocks.STAR_DUST_BLOCK)
     val STAR_SHARDS_ORE = registerItem(Blocks.STAR_SHARDS_ORE)
     val DEEPSLATE_STAR_SHARDS_ORE = registerItem(Blocks.DEEPSLATE_STAR_SHARDS_ORE)
+    val TIN_ORE = registerItem(Blocks.TIN_ORE)
+    val DEEPSLATE_TIN_ORE = registerItem(Blocks.DEEPSLATE_TIN_ORE)
     
     // Crafting components
     val STAR_SHARDS = registerItem("star_shards")
@@ -121,6 +123,7 @@ object Items : ItemRegistry by Machines.registry {
     val BRONZE_INGOT = registerItem("bronze_ingot")
     val STEEL_INGOT = registerItem("steel_ingot")
     val TIN_INGOT = registerItem("tin_ingot")
+    val RAW_TIN = registerItem("raw_tin")
     val BRONZE_NUGGET = registerItem("bronze_nugget")
     val STEEL_NUGGET = registerItem("steel_nugget")
     val TIN_NUGGET = registerItem("tin_nugget")
