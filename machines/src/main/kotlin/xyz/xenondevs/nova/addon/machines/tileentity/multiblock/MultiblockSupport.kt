@@ -55,6 +55,13 @@ enum class MultiblockOrientation(val blockFace: BlockFace) {
  * Simple class to validate multiblock structures.
  * The pattern now includes the controller position (marked with 'c').
  */
+/**
+ * Data class to store multiblock block counts
+ */
+data class MultiblockBlockCounts(
+    val blocks: Map<String, Int> = mutableMapOf()
+)
+
 class MultiblockStructure(
     val pattern: List<List<String>>,
     val blocks: Map<Char, Any> // Changed to Any to support both String and List<String>
@@ -67,10 +74,25 @@ class MultiblockStructure(
      * Uses the orientation of the machine to rotate the pattern.
      */
     fun isValid(controller: TileEntity, orientation: MultiblockOrientation): Boolean {
+        return validateMultiblock(controller, orientation).first
+    }
+    
+    /**
+     * Validates the multiblock and optionally gathers block counts.
+     * Returns a Pair of (isValid, blockCounts)
+     */
+    fun validateMultiblock(
+        controller: TileEntity, 
+        orientation: MultiblockOrientation,
+        gatherCounts: Boolean = false
+    ): Pair<Boolean, MultiblockBlockCounts> {
         // Find controller position in pattern
         var controllerLayer = -1
         var controllerRow = -1
         var controllerCol = -1
+        
+        // Map to store block counts if requested
+        val blockCounts = mutableMapOf<String, Int>()
         
         // Find controller position in pattern
         patternLoop@ for ((layerIdx, layer) in pattern.withIndex()) {
@@ -125,26 +147,33 @@ class MultiblockStructure(
                     )
                     
                     // Check if the block matches what's expected
-                    if (!isBlockValid(blockPos, char)) {
-                        return false
+                    val (isValid, matchedBlockId) = isBlockValid(blockPos, char)
+                    if (!isValid) {
+                        return Pair(false, MultiblockBlockCounts(blockCounts))
+                    }
+                    
+                    // If gathering counts and not a wildcard, count the block
+                    if (gatherCounts && char != wildCardChar && matchedBlockId != null) {
+                        blockCounts[matchedBlockId] = blockCounts.getOrDefault(matchedBlockId, 0) + 1
                     }
                 }
             }
         }
         
-        return true
+        return Pair(true, MultiblockBlockCounts(blockCounts))
     }
     
     /**
      * Checks if a block at the given position matches what's expected in the pattern.
+     * Returns a pair of (isValid, matchedBlockId)
      */
-    private fun isBlockValid(pos: BlockPos, patternChar: Char): Boolean {
+    private fun isBlockValid(pos: BlockPos, patternChar: Char): Pair<Boolean, String?> {
         // Wildcard character - any block is acceptable
         if (patternChar == wildCardChar) {
-            return true
+            return Pair(true, null)
         }
         
-        val requiredId = blocks[patternChar] ?: return false
+        val requiredId = blocks[patternChar] ?: return Pair(false, null)
         
         // Get the actual block ID at this position 
         val block = pos.block
@@ -152,19 +181,26 @@ class MultiblockStructure(
         
         // Special case for ANY_BLOCK wildcard
         if (requiredId == "ANY_BLOCK") {
-            return true
+            return Pair(true, actualId)
         }
         
         // For air blocks
         if (requiredId is String && requiredId == "minecraft:air") {
-            return block.type == Material.AIR
+            return Pair(block.type == Material.AIR, "minecraft:air")
         }
         
         // Handle both single string and list of strings cases
         return when (requiredId) {
-            is String -> actualId == requiredId
-            is List<*> -> requiredId.any { it is String && actualId == it }
-            else -> false
+            is String -> {
+                val valid = actualId == requiredId
+                Pair(valid, if (valid) actualId else null)
+            }
+            is List<*> -> {
+                // Find the matching block ID in the list
+                val matchingId = requiredId.find { it is String && actualId == it } as? String
+                Pair(matchingId != null, actualId)
+            }
+            else -> Pair(false, null)
         }
     }
 }
@@ -174,4 +210,11 @@ class MultiblockStructure(
  */
 fun TileEntity.isMultiblockValid(structure: MultiblockStructure, orientation: MultiblockOrientation): Boolean {
     return structure.isValid(this, orientation)
+}
+
+/**
+ * Extension function for TileEntity to validate a multiblock structure and get block counts.
+ */
+fun TileEntity.getMultiblockInfo(structure: MultiblockStructure, orientation: MultiblockOrientation): Pair<Boolean, MultiblockBlockCounts> {
+    return structure.validateMultiblock(this, orientation, true)
 }

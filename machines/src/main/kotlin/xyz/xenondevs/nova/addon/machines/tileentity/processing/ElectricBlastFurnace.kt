@@ -20,7 +20,9 @@ import xyz.xenondevs.nova.addon.machines.registry.RecipeTypes
 import xyz.xenondevs.nova.addon.machines.tileentity.multiblock.MultiblockOrientation
 import xyz.xenondevs.nova.addon.machines.tileentity.multiblock.MultiblockOrientation.Companion.getOppositeDirection
 import xyz.xenondevs.nova.addon.machines.tileentity.multiblock.MultiblockStructure
+import xyz.xenondevs.nova.addon.machines.tileentity.multiblock.MultiblockBlockCounts
 import xyz.xenondevs.nova.addon.machines.tileentity.multiblock.isMultiblockValid
+import xyz.xenondevs.nova.addon.machines.tileentity.multiblock.getMultiblockInfo
 import xyz.xenondevs.nova.addon.machines.util.energyConsumption
 import xyz.xenondevs.nova.addon.machines.util.speedMultipliedValue
 import xyz.xenondevs.nova.addon.simpleupgrades.gui.OpenUpgradesItem
@@ -44,7 +46,6 @@ import xyz.xenondevs.nova.world.block.tileentity.network.type.NetworkConnectionT
 import xyz.xenondevs.nova.world.block.tileentity.network.type.NetworkConnectionType.INSERT
 import xyz.xenondevs.nova.world.item.recipe.NovaRecipe
 import xyz.xenondevs.nova.world.item.recipe.RecipeManager
-import java.lang.reflect.Type
 import kotlin.math.max
 
 private val BLOCKED_SIDES = enumSetOf(BlockSide.FRONT)
@@ -133,6 +134,8 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
 
     // Track multiblock validation state
     private var multiblockValid by storedValue("multiblockValid") { false }
+    private var multiblockCounts: MultiblockBlockCounts = MultiblockBlockCounts()
+    
     private val facing: BlockFace
         get() = blockState.getOrThrow(DefaultBlockStateProperties.FACING)
     private val orientation: MultiblockOrientation
@@ -160,33 +163,58 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
         active = false
     }
 
+    // Calculate the heat value of the multiblock structure
+    private var heatValue by storedValue("heatValue") { 0 }
+    
     private fun validateMultiblock() {
         try {
-            // Check if the multiblock structure is valid
-            multiblockValid = isMultiblockValid(MULTIBLOCK_STRUCTURE, orientation)
+            // Check if the multiblock structure is valid and get block counts
+            val (isValid, blockCounts) = getMultiblockInfo(MULTIBLOCK_STRUCTURE, orientation)
+            multiblockValid = isValid
+            
+            if (isValid) {
+                multiblockCounts = blockCounts
+                
+                // Count machine casings and calculate heat
+                val standardCasingCount = blockCounts.blocks["machines:standard_machine_casing"] ?: 0
+                val reinforcedCasingCount = blockCounts.blocks["machines:reinforced_machine_casing"] ?: 0
+                val advancedCasingCount = blockCounts.blocks["machines:advanced_machine_casing"] ?: 0
+                val lavaCount = blockCounts.blocks["minecraft:lava"] ?: 0
+                
+                // Calculate heat value based on block types
+                heatValue = (standardCasingCount * 30) + 
+                            (reinforcedCasingCount * 50) + 
+                            (advancedCasingCount * 80) + 
+                            (lavaCount * 250)
+            } else {
+                heatValue = 0
+            }
         } catch (e: Exception) {
             multiblockValid = false
+            heatValue = 0
         }
     }
 
     override fun handleTick() {
         try {
-            // Should the machine be active? (has energy and recipe in progress)
-            val shouldBeActive = energyHolder.energy >= energyPerTick && timeLeft > 0
-
-            // Check multiblock structure only when trying to operate
-            // or when starting a new recipe (timeLeft == 0 and we have energy)
-            if (active) {
+            // Always validate multiblock when a recipe is in progress to continuously check heat
+            if (timeLeft > 0) {
+                validateMultiblock()
+            } else if (active) {
+                // Also check when the machine is active but not processing yet
                 validateMultiblock()
             }
 
-            // Cannot operate if multiblock is invalid
-            if (!multiblockValid) {
+            // Get current recipe heat requirement if we have one
+            val currentHeatRequired = currentRecipe?.requiredHeat ?: 0
+
+            // Check multiblock validity and heat requirements
+            if (!multiblockValid || (currentHeatRequired > 0 && heatValue < currentHeatRequired)) {
                 if (particleTask.isRunning()) {
                     particleTask.stop()
                 }
                 active = false
-                return
+                // Don't return here - we still want to check if we have energy but just not process
             }
         } catch (e: Exception) {
             active = false
@@ -200,26 +228,38 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
                     particleTask.stop()
                 active = false
             } else {
-                timeLeft = max(timeLeft - electricBlastFurnaceSpeed, 0)
-                energyHolder.energy -= energyPerTick
+                // Get current recipe heat requirement
+                val recipe = currentRecipe
+                val requiredHeat = recipe?.requiredHeat ?: 0
+                
+                // Only continue processing if the recipe heat requirement is met
+                if (multiblockValid && (requiredHeat <= 0 || heatValue >= requiredHeat)) {
+                    // We have enough heat, process the recipe
+                    timeLeft = max(timeLeft - electricBlastFurnaceSpeed, 0)
+                    energyHolder.energy -= energyPerTick
 
-                if (!particleTask.isRunning())
-                    particleTask.start()
-                active = true
+                    if (!particleTask.isRunning())
+                        particleTask.start()
+                    active = true
 
-                if (timeLeft == 0) {
-                    currentRecipe?.let { recipe ->
-                        // Add all output items to the output inventory
-                        recipe.results.forEach { output ->
-                            outputInv.addItem(SELF_UPDATE_REASON, output.clone())
+                    if (timeLeft == 0) {
+                        currentRecipe?.let { recipe ->
+                            // Add all output items to the output inventory
+                            recipe.results.forEach { output ->
+                                outputInv.addItem(SELF_UPDATE_REASON, output.clone())
+                            }
                         }
+                        currentRecipe = null
                     }
-                    currentRecipe = null
+
+                    menuContainer.forEachMenu(ElectricBlastFurnaceMenu::updateProgress)
+                } else {
+                    // We don't have enough heat or multiblock is invalid, don't process this tick
+                    if (particleTask.isRunning())
+                        particleTask.stop()
+                    active = false
                 }
-
-                menuContainer.forEachMenu(ElectricBlastFurnaceMenu::updateProgress)
             }
-
         } else {
             if (particleTask.isRunning()) {
                 particleTask.stop()
@@ -242,6 +282,12 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
 
         // Find a matching recipe
         recipeLoop@ for ((recipeIndex, recipe) in allRecipes.withIndex()) {
+            
+            // Check if we have sufficient heat for the recipe
+            if (recipe.requiredHeat > 0 && heatValue < recipe.requiredHeat) {
+                // Skip this recipe if we don't have enough heat
+                continue
+            }
 
             // Check if we have enough input items
             if (recipe.inputs.size > inputItems.size) {

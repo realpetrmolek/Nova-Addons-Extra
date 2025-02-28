@@ -13,13 +13,13 @@ multiblock_json: '{
       ],
       [
          "mmm",
-         "m*m",
+         "mlm",
          "mmm",
          "***"
       ],
       [
          "mmm",
-         "m*m",
+         "mlm",
          "mmm",
          "***"
       ],
@@ -33,6 +33,7 @@ multiblock_json: '{
    "mapping":{
       "c":"machines:electric_blast_furnace",
       "m":["machines:standard_machine_casing", "machines:reinforced_machine_casing", "machines:advanced_machine_casing"],
+      "l":["minecraft:air", "minecraft:lava"],
       " ":"minecraft:air"
    }
 }'

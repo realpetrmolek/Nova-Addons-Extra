@@ -36,7 +36,8 @@ class ElectricBlastFurnaceRecipe(
     override val inputs: List<RecipeChoice>,
     val time: Int,
     val inputCounts: List<Int> = listOf(),
-    override val results: List<ItemStack> = listOf()
+    override val results: List<ItemStack> = listOf(),
+    val requiredHeat: Int = 0
 ) : NovaRecipe, MultiInputChoiceRecipe, MultiResultRecipe {
     override val type = RecipeTypes.ELECTRIC_BLAST_FURNACE
 }

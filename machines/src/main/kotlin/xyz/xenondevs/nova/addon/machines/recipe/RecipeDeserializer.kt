@@ -127,13 +127,17 @@ object ElectricBlastFurnaceRecipeDeserializer : RecipeDeserializer<ElectricBlast
         
         // Get processing time
         val time = json.getIntOrNull("time") ?: 0
+        
+        // Get required heat (if specified)
+        val requiredHeat = json.getIntOrNull("heat") ?: 0
 
         return ElectricBlastFurnaceRecipe(
             getRecipeKey(file),
             inputs.map { it.first },
             time,
             inputs.map { it.second },
-            outputs
+            outputs,
+            requiredHeat
         )
     }
 }
