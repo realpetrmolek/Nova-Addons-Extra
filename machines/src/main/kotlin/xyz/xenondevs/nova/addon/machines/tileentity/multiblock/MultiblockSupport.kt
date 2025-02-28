@@ -2,7 +2,6 @@ package xyz.xenondevs.nova.addon.machines.tileentity.multiblock
 
 import org.bukkit.Material
 import org.bukkit.block.BlockFace
-import xyz.xenondevs.commons.provider.Provider
 import xyz.xenondevs.nova.util.id
 import xyz.xenondevs.nova.world.BlockPos
 import xyz.xenondevs.nova.world.block.tileentity.TileEntity
@@ -30,6 +29,24 @@ enum class MultiblockOrientation(val blockFace: BlockFace) {
                 BlockFace.WEST -> WEST
                 else -> NORTH // Default
             }
+        }
+
+        fun getOppositeDirection(dir: BlockFace): BlockFace {
+            var dir = dir
+            if (dir == BlockFace.UP) {
+                dir = BlockFace.DOWN
+            } else if (dir == BlockFace.DOWN) {
+                dir = BlockFace.UP
+            } else if (dir == BlockFace.NORTH) {
+                dir = BlockFace.SOUTH
+            } else if (dir == BlockFace.SOUTH) {
+                dir = BlockFace.NORTH
+            } else if (dir == BlockFace.EAST) {
+                dir = BlockFace.WEST
+            } else if (dir == BlockFace.WEST) {
+                dir = BlockFace.EAST
+            }
+            return dir
         }
     }
 }

@@ -22,5 +22,6 @@ object GuiTextures : GuiTextureRegistry by Machines.registry {
     val RECIPE_ELECTRIC_BREWING_STAND = guiTexture("recipe_electric_brewing_stand") { path("gui/recipe/electric_brewing_stand") }
     val RECIPE_IMPLOSION_COMPRESSOR = guiTexture("recipe_implosion_compressor") { path("gui/recipe/implosion_compressor") }
     val RECIPE_ALLOY_SMELTER = guiTexture("recipe_alloy_smelter") { path("gui/recipe/alloy_smelter") }
+    val RECIPE_ELECTRIC_BLAST_FURNACE = guiTexture("recipe_electric_blast_furnace") { path("gui/recipe/electric_blast_furnace") }
     
 }

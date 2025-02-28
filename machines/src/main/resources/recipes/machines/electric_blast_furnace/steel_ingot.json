@@ -1,0 +1,23 @@
+{
+  "inputs": [
+    {
+      "items": ["minecraft:iron_ingot", "nova:iron_dust"],
+      "count": 1
+    },
+    {
+      "items": ["nova:coal_dust"],
+      "count": 2
+    }
+  ],
+  "outputs": [
+    {
+      "id": "machines:steel_ingot",
+      "amount": 1
+    },
+    {
+      "id": "machines:dark_ashes",
+      "amount": 2
+    }
+  ],
+  "time": 600
+}

@@ -1,35 +1,38 @@
 capacity: 100000
 energy_per_tick: 75
-implosion_compressing_time: 300
+electric_blast_furnace_time: 300
 speed: 1
 
 multiblock_json: '{
    "structure":[
       [
-         "srs",
-         "rrr",
-         "srs"
+         "sss",
+         "sss",
+         "sss",
+         "*c*"
       ],
       [
-         "rrr",
-         "r r",
-         "rrr"
+         "sss",
+         "s*s",
+         "sss",
+         "***"
       ],
       [
-         "srs",
-         "rrr",
-         "srs"
+         "sss",
+         "s*s",
+         "sss",
+         "***"
       ],
       [
-         "***",
-         "*c*",
+         "sss",
+         "sss",
+         "sss",
          "***"
       ]
    ],
    "mapping":{
       "c":"machines:electric_blast_furnace",
       "s":"machines:standard_machine_casing",
-      "r":"machines:reinforced_machine_casing",
       " ":"minecraft:air"
    }
 }'

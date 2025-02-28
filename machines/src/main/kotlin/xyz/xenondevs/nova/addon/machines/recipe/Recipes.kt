@@ -31,6 +31,16 @@ class ImplosionCompressorRecipe(
     override val type = RecipeTypes.IMPLOSION_COMPRESSOR
 }
 
+class ElectricBlastFurnaceRecipe(
+    override val id: Key,
+    override val inputs: List<RecipeChoice>,
+    val time: Int,
+    val inputCounts: List<Int> = listOf(),
+    override val results: List<ItemStack> = listOf()
+) : NovaRecipe, MultiInputChoiceRecipe, MultiResultRecipe {
+    override val type = RecipeTypes.ELECTRIC_BLAST_FURNACE
+}
+
 class PulverizerRecipe(
     id: Key,
     input: RecipeChoice,

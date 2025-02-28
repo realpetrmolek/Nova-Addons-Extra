@@ -17,6 +17,8 @@ import xyz.xenondevs.nova.addon.machines.recipe.AlloySmelterRecipe
 import xyz.xenondevs.nova.addon.machines.recipe.AlloySmelterRecipeDeserializer
 import xyz.xenondevs.nova.addon.machines.recipe.ImplosionCompressorRecipe
 import xyz.xenondevs.nova.addon.machines.recipe.ImplosionCompressorRecipeDeserializer
+import xyz.xenondevs.nova.addon.machines.recipe.ElectricBlastFurnaceRecipe
+import xyz.xenondevs.nova.addon.machines.recipe.ElectricBlastFurnaceRecipeDeserializer
 import xyz.xenondevs.nova.addon.machines.recipe.group.CrystallizerRecipeGroup
 import xyz.xenondevs.nova.addon.machines.recipe.group.ElectricBrewingStandRecipeGroup
 import xyz.xenondevs.nova.addon.machines.recipe.group.FluidInfuserRecipeGroup
@@ -30,6 +32,7 @@ import xyz.xenondevs.nova.addon.machines.recipe.group.hardcoded.StarCollectorRec
 import xyz.xenondevs.nova.addon.machines.recipe.group.hardcoded.StarCollectorRecipeGroup
 import xyz.xenondevs.nova.addon.machines.recipe.group.AlloySmeltingRecipeGroup
 import xyz.xenondevs.nova.addon.machines.recipe.group.ImplosionCompressingRecipeGroup
+import xyz.xenondevs.nova.addon.machines.recipe.group.ElectricBlastFurnaceRecipeGroup
 import xyz.xenondevs.nova.addon.registry.RecipeTypeRegistry
 import xyz.xenondevs.nova.initialize.Init
 import xyz.xenondevs.nova.initialize.InitStage
@@ -48,5 +51,6 @@ object RecipeTypes : RecipeTypeRegistry by Machines.registry {
     val FREEZER = registerRecipeType("freezer", FreezerRecipe::class, FreezerRecipeGroup, null)
     val ALLOY_SMELTER = registerRecipeType("alloy_smelter", AlloySmelterRecipe::class, AlloySmeltingRecipeGroup, AlloySmelterRecipeDeserializer)
     val IMPLOSION_COMPRESSOR = registerRecipeType("implosion_compressor", ImplosionCompressorRecipe::class, ImplosionCompressingRecipeGroup, ImplosionCompressorRecipeDeserializer)
+    val ELECTRIC_BLAST_FURNACE = registerRecipeType("electric_blast_furnace", ElectricBlastFurnaceRecipe::class, ElectricBlastFurnaceRecipeGroup, ElectricBlastFurnaceRecipeDeserializer)
     
 }

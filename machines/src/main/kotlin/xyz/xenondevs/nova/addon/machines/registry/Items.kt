@@ -29,6 +29,7 @@ object Items : ItemRegistry by Machines.registry {
     val PULVERIZER = registerItem(Blocks.PULVERIZER)
     val ALLOY_SMELTER = registerItem(Blocks.ALLOY_SMELTER)
     val IMPLOSION_COMPRESSOR = registerItem(Blocks.IMPLOSION_COMPRESSOR)
+    val ELECTRIC_BLAST_FURNACE = registerItem(Blocks.ELECTRIC_BLAST_FURNACE)
     val ELECTRIC_FURNACE = registerItem(Blocks.ELECTRIC_FURNACE)
     val BLOCK_PLACER = registerItem(Blocks.BLOCK_PLACER)
     val BLOCK_BREAKER = registerItem(Blocks.BLOCK_BREAKER)

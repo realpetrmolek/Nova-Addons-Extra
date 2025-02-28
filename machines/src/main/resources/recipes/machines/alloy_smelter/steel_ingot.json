@@ -2,7 +2,7 @@
   "inputs": [
     {
       "items": ["machines:coal_dust"],
-      "count": 2
+      "count": 4
     },
     {
       "items": ["minecraft:iron_ingot", "machines:iron_dust"],
