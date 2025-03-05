@@ -160,12 +160,18 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
     /**
      * Returns the appropriate error message based on current machine state.
      * Priority order: multiblock error, then heat error, then other errors.
+     * 
+     * For translation keys that need parameters (like insufficient_heat), we'll handle 
+     * those directly in the ErrorWarningItem's Component.translatable approach.
      */
     private fun getCurrentErrorMessage(): String {
         return when {
             !multiblockValid -> "menu.machines.error.invalid_multiblock"
-            getRequiredHeat() > 0 && heatValue < getRequiredHeat() -> 
-                "menu.machines.error.insufficient_heat"
+            getRequiredHeat() > 0 && heatValue < getRequiredHeat() -> {
+                val heatKey = "menu.machines.error.insufficient_heat"
+                val formattedHeat = "$heatValue/${getRequiredHeat()}"
+                return "$heatKey:$formattedHeat" // Special format we'll parse in the ErrorWarningItem
+            }
             else -> "Unknown error"
         }
     }
