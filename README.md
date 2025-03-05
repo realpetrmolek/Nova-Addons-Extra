@@ -8,7 +8,7 @@ Since I can't create my own textures, I sourced them from:
 ### New machines:
 - [x] Alloy Smelter
 - [x] Implosion Compressor
-- [ ] Electric Blast Furnace
+- [x] Electric Blast Furnace
 - [ ] Centrifuge
 - [ ] Compressor
 - [ ] Extractor

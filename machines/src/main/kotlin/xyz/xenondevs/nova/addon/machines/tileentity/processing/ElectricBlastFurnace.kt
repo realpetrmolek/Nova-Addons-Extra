@@ -11,6 +11,7 @@ import xyz.xenondevs.commons.collections.enumSetOf
 import xyz.xenondevs.commons.provider.mapNonNull
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent
+import xyz.xenondevs.nova.addon.machines.gui.ErrorWarningItem
 import xyz.xenondevs.nova.addon.machines.gui.ProgressArrowItem
 import xyz.xenondevs.nova.addon.machines.gui.ElectricBlastFurnaceProgressItem
 import xyz.xenondevs.nova.addon.machines.recipe.ElectricBlastFurnaceRecipe
@@ -132,7 +133,7 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
 
     private var timeLeft by storedValue("electricBlastFurnaceTime") { 0 }
 
-    // Track multiblock validation state
+    // Track machine state
     private var multiblockValid by storedValue("multiblockValid") { false }
     private var multiblockCounts: MultiblockBlockCounts = MultiblockBlockCounts()
     
@@ -140,6 +141,34 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
         get() = blockState.getOrThrow(DefaultBlockStateProperties.FACING)
     private val orientation: MultiblockOrientation
         get() = MultiblockOrientation.fromBlockFace(getOppositeDirection(facing))
+        
+    /**
+     * Checks if the machine has any errors that should display a warning.
+     * Can be extended to include other error conditions besides multiblock validity.
+     */
+    private fun hasErrors(): Boolean {
+        return !multiblockValid || heatValue < getRequiredHeat()
+    }
+    
+    /**
+     * Gets the required heat for the current recipe, or 0 if no recipe is active
+     */
+    private fun getRequiredHeat(): Int {
+        return currentRecipe?.requiredHeat ?: 0
+    }
+    
+    /**
+     * Returns the appropriate error message based on current machine state.
+     * Priority order: multiblock error, then heat error, then other errors.
+     */
+    private fun getCurrentErrorMessage(): String {
+        return when {
+            !multiblockValid -> "menu.machines.error.invalid_multiblock"
+            getRequiredHeat() > 0 && heatValue < getRequiredHeat() -> 
+                "menu.machines.error.insufficient_heat"
+            else -> "Unknown error"
+        }
+    }
 
     private var currentRecipe: ElectricBlastFurnaceRecipe? by storedValue<Key>("currentRecipe").mapNonNull(
         { RecipeManager.getRecipe(RecipeTypes.ELECTRIC_BLAST_FURNACE, it) },
@@ -168,6 +197,9 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
     
     private fun validateMultiblock() {
         try {
+            // Store previous state to detect changes
+            val wasValid = multiblockValid
+            
             // Check if the multiblock structure is valid and get block counts
             val (isValid, blockCounts) = getMultiblockInfo(MULTIBLOCK_STRUCTURE, orientation)
             multiblockValid = isValid
@@ -189,9 +221,17 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
             } else {
                 heatValue = 0
             }
+            
+            // Update error indicator if validity changed
+            if (wasValid != multiblockValid) {
+                menuContainer.forEachMenu(ElectricBlastFurnaceMenu::updateErrorIndicator)
+            }
         } catch (e: Exception) {
             multiblockValid = false
             heatValue = 0
+            
+            // Ensure error warning is shown on exception
+            menuContainer.forEachMenu(ElectricBlastFurnaceMenu::updateErrorIndicator)
         }
     }
 
@@ -208,12 +248,14 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
             // Get current recipe heat requirement if we have one
             val currentHeatRequired = currentRecipe?.requiredHeat ?: 0
 
-            // Check multiblock validity and heat requirements
-            if (!multiblockValid || (currentHeatRequired > 0 && heatValue < currentHeatRequired)) {
+            // Check for any errors
+            if (hasErrors()) {
                 if (particleTask.isRunning()) {
                     particleTask.stop()
                 }
                 active = false
+                // Update the error indicator
+                menuContainer.forEachMenu(ElectricBlastFurnaceMenu::updateErrorIndicator)
                 // Don't return here - we still want to check if we have energy but just not process
             }
         } catch (e: Exception) {
@@ -228,12 +270,8 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
                     particleTask.stop()
                 active = false
             } else {
-                // Get current recipe heat requirement
-                val recipe = currentRecipe
-                val requiredHeat = recipe?.requiredHeat ?: 0
-                
-                // Only continue processing if the recipe heat requirement is met
-                if (multiblockValid && (requiredHeat <= 0 || heatValue >= requiredHeat)) {
+                // Check machine for errors before processing
+                if (!hasErrors()) {
                     // We have enough heat, process the recipe
                     timeLeft = max(timeLeft - electricBlastFurnaceSpeed, 0)
                     energyHolder.energy -= energyPerTick
@@ -283,9 +321,8 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
         // Find a matching recipe
         recipeLoop@ for ((recipeIndex, recipe) in allRecipes.withIndex()) {
             
-            // Check if we have sufficient heat for the recipe
+            // Skip recipes that require more heat than we can provide
             if (recipe.requiredHeat > 0 && heatValue < recipe.requiredHeat) {
-                // Skip this recipe if we don't have enough heat
                 continue
             }
 
@@ -375,6 +412,11 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
 
         private val mainProgress = ProgressArrowItem()
         private val electricBlastFurnaceProgress = ElectricBlastFurnaceProgressItem()
+        private val errorWarning = ErrorWarningItem(
+            visibilityCondition = { hasErrors() },
+            titleKey = "menu.machines.error.warning",
+            dynamicDescription = { getCurrentErrorMessage() }
+        )
 
         private val sideConfigGui = SideConfigMenu(
             this@ElectricBlastFurnace,
@@ -388,14 +430,15 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
         override val gui = Gui.normal()
             .setStructure(
                 "1 - - - - - - - 2",
-                "| i # # # # # e |",
+                "| i # # # # # e |",  // Added '!' for the warning
                 "| i # , # o o e |",
-                "| # # c # s u e |",
+                "| # # c ! s u e |",
                 "3 - - - - - - - 4")
             .addIngredient('i', inputInv)
             .addIngredient('o', outputInv)
             .addIngredient(',', mainProgress)
             .addIngredient('c', electricBlastFurnaceProgress)
+            .addIngredient('!', errorWarning)  // Error warning display
             .addIngredient('s', OpenSideConfigItem(sideConfigGui))
             .addIngredient('u', OpenUpgradesItem(upgradeHolder))
             .addIngredient('e', EnergyBar(3, energyHolder))
@@ -418,6 +461,13 @@ class ElectricBlastFurnace(pos: BlockPos, blockState: NovaBlockState, data: Comp
                 mainProgress.percentage = 0.0
                 electricBlastFurnaceProgress.percentage = 0.0
             }
+        }
+        
+        /**
+         * Updates the error indicator when machine state changes
+         */
+        fun updateErrorIndicator() {
+            errorWarning.update()
         }
     }
 

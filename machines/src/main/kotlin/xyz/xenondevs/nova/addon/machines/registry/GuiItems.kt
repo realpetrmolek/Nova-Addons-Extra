@@ -32,6 +32,7 @@ object GuiItems : ItemRegistry by Machines.registry {
     val TP_COLOR_PICKER = guiItem("color_picker")
     val TP_GREEN_PLUS = tpGuiItem("green_plus")
     val TP_RED_MINUS = tpGuiItem("red_minus")
+    val ERROR_WARNING = tpGuiItem("btn/multiblock_warning", "menu.machines.error.warning")
     
     val AXE_PLACEHOLDER = tpGuiItem("placeholder/axe", null)
     val HOE_PLACEHOLDER = tpGuiItem("placeholder/hoe", null)
