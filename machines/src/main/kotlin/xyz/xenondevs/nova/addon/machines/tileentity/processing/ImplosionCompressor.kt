@@ -11,6 +11,7 @@ import xyz.xenondevs.commons.collections.enumSetOf
 import xyz.xenondevs.commons.provider.mapNonNull
 import xyz.xenondevs.invui.gui.Gui
 import xyz.xenondevs.invui.inventory.event.ItemPreUpdateEvent
+import xyz.xenondevs.nova.addon.machines.gui.ErrorWarningItem
 import xyz.xenondevs.nova.addon.machines.gui.ProgressArrowItem
 import xyz.xenondevs.nova.addon.machines.gui.ImplosionCompressorProgressItem
 import xyz.xenondevs.nova.addon.machines.recipe.ImplosionCompressorRecipe
@@ -105,12 +106,29 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
 
     private var timeLeft by storedValue("implosionCompressorTime") { 0 }
 
-    // Track multiblock validation state
+    // Track machine state
     private var multiblockValid by storedValue("multiblockValid") { false }
     private val facing: BlockFace
         get() = blockState.getOrThrow(DefaultBlockStateProperties.FACING)
     private val orientation: MultiblockOrientation
         get() = MultiblockOrientation.fromBlockFace(facing)
+        
+    /**
+     * Checks if the machine has any errors that should display a warning.
+     */
+    private fun hasErrors(): Boolean {
+        return !multiblockValid
+    }
+    
+    /**
+     * Returns the appropriate error message based on current machine state.
+     */
+    private fun getCurrentErrorMessage(): String {
+        return when {
+            !multiblockValid -> "menu.machines.error.invalid_multiblock"
+            else -> "Unknown error"
+        }
+    }
 
     private var currentRecipe: ImplosionCompressorRecipe? by storedValue<Key>("currentRecipe").mapNonNull(
         { RecipeManager.getRecipe(RecipeTypes.IMPLOSION_COMPRESSOR, it) },
@@ -136,10 +154,21 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
 
     private fun validateMultiblock() {
         try {
+            // Store previous state to detect changes
+            val wasValid = multiblockValid
+            
             // Check if the multiblock structure is valid
             multiblockValid = isMultiblockValid(MULTIBLOCK_STRUCTURE, orientation)
+            
+            // Update error indicator if validity changed
+            if (wasValid != multiblockValid) {
+                menuContainer.forEachMenu(ImplosionCompressorMenu::updateErrorIndicator)
+            }
         } catch (e: Exception) {
             multiblockValid = false
+            
+            // Ensure error warning is shown on exception
+            menuContainer.forEachMenu(ImplosionCompressorMenu::updateErrorIndicator)
         }
     }
 
@@ -154,12 +183,14 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
                 validateMultiblock()
             }
 
-            // Cannot operate if multiblock is invalid
-            if (!multiblockValid) {
+            // Check for any errors
+            if (hasErrors()) {
                 if (particleTask.isRunning()) {
                     particleTask.stop()
                 }
                 active = false
+                // Update the error indicator
+                menuContainer.forEachMenu(ImplosionCompressorMenu::updateErrorIndicator)
                 return
             }
         } catch (e: Exception) {
@@ -303,6 +334,11 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
 
         private val mainProgress = ProgressArrowItem()
         private val implosionCompressorProgress = ImplosionCompressorProgressItem()
+        private val errorWarning = ErrorWarningItem(
+            visibilityCondition = { hasErrors() },
+            titleKey = "menu.machines.error.warning",
+            dynamicDescription = { getCurrentErrorMessage() }
+        )
 
         private val sideConfigGui = SideConfigMenu(
             this@ImplosionCompressor,
@@ -316,14 +352,15 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
         override val gui = Gui.normal()
             .setStructure(
                 "1 - - - - - - - 2",
-                "| i # # # # # e |",
+                "| i # # # # # e |",  // Added '!' for the warning
                 "| i # , # o o e |",
-                "| # # c # s u e |",
+                "| # # c i s u e |",
                 "3 - - - - - - - 4")
             .addIngredient('i', inputInv)
             .addIngredient('o', outputInv)
             .addIngredient(',', mainProgress)
             .addIngredient('c', implosionCompressorProgress)
+            .addIngredient('!', errorWarning)  // Error warning display
             .addIngredient('s', OpenSideConfigItem(sideConfigGui))
             .addIngredient('u', OpenUpgradesItem(upgradeHolder))
             .addIngredient('e', EnergyBar(3, energyHolder))
@@ -341,11 +378,18 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
             mainProgress.percentage = percentage
             implosionCompressorProgress.percentage = percentage
 
-            // Disable progress indicators if multiblock is invalid
-            if (!multiblockValid) {
+            // Disable progress indicators if there are errors
+            if (hasErrors()) {
                 mainProgress.percentage = 0.0
                 implosionCompressorProgress.percentage = 0.0
             }
+        }
+        
+        /**
+         * Updates the error indicator when machine state changes
+         */
+        fun updateErrorIndicator() {
+            errorWarning.update()
         }
     }
 
