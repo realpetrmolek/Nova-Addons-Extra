@@ -1,0 +1,19 @@
+{
+  "inputs": [
+    {
+      "items": ["machines:bronze_ingot"],
+      "count": 1
+    }
+  ],
+  "outputs": [
+    {
+      "id": "minecraft:copper_ingot",
+      "amount": 3
+    },
+    {
+      "id": "machines:tin_ingot",
+      "amount": 1
+    }
+  ],
+  "time": 800
+}

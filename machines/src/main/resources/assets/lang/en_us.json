@@ -46,6 +46,7 @@
   "block.machines.auto_crafter": "Auto Crafter",
   "block.machines.auto_crafter.inv_window.title": "Internal Inventory",
   "block.machines.alloy_smelter": "Alloy Smelter",
+  "block.machines.industrial_centrifuge": "Industrial Centrifuge",
   "block.machines.implosion_compressor": "Implosion Compressor",
   "block.machines.electric_blast_furnace": "Electric Blast Furnace",
   "item.machines.star_sword": "Star Sword",

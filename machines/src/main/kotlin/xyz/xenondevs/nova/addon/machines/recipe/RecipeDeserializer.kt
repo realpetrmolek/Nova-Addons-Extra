@@ -62,6 +62,44 @@ object AlloySmelterRecipeDeserializer : RecipeDeserializer<AlloySmelterRecipe> {
     }
 }
 
+object IndustrialCentrifugeRecipeDeserializer : RecipeDeserializer<IndustrialCentrifugeRecipe> {
+
+    override fun deserialize(json: JsonObject, file: File): IndustrialCentrifugeRecipe {
+        // Parse inputs array with multiple items per input
+        val inputs = json.getAsJsonArray("inputs").map { inputObj ->
+            val items = inputObj.asJsonObject.getAsJsonArray("items").map { it.asString }
+            val count = inputObj.asJsonObject.getInt("count")
+            
+            val choice = ItemUtils.getRecipeChoice(items)
+            Pair(choice, count)
+        }
+        
+        // Get outputs array
+        val outputs = json.getAsJsonArray("outputs").map { outputObj ->
+            val id = outputObj.asJsonObject.getString("id")
+            val amount = outputObj.asJsonObject.getInt("amount")
+            
+            val resultItem = ItemUtils.getItemStack(id)
+            resultItem.amount = amount
+            resultItem
+        }
+        
+        // Use first output as the main result
+        val resultItem = outputs.first()
+        
+        // Get processing time
+        val time = json.getIntOrNull("time") ?: 0
+
+        return IndustrialCentrifugeRecipe(
+            getRecipeKey(file),
+            inputs.map { it.first },
+            time,
+            inputs.map { it.second },
+            outputs
+        )
+    }
+}
+
 object ImplosionCompressorRecipeDeserializer : RecipeDeserializer<ImplosionCompressorRecipe> {
 
     override fun deserialize(json: JsonObject, file: File): ImplosionCompressorRecipe {

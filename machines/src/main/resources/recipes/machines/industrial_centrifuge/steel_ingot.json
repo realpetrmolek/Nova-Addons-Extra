@@ -1,0 +1,19 @@
+{
+  "inputs": [
+    {
+      "items": ["machines:steel_ingot"],
+      "count": 1
+    }
+  ],
+  "outputs": [
+    {
+      "id": "minecraft:iron_ingot",
+      "amount": 1
+    },
+    {
+      "id": "minecraft:coal",
+      "amount": 2
+    }
+  ],
+  "time": 1000
+}

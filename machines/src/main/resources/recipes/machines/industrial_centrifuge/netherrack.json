@@ -1,0 +1,19 @@
+{
+  "inputs": [
+    {
+      "items": ["minecraft:netherrack"],
+      "count": 1
+    }
+  ],
+  "outputs": [
+    {
+      "id": "minecraft:redstone",
+      "amount": 1
+    },
+    {
+      "id": "minecraft:soul_sand",
+      "amount": 1
+    }
+  ],
+  "time": 600
+}

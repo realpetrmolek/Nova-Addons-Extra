@@ -1,0 +1,4 @@
+capacity: 100000
+energy_per_tick: 50
+industrial_centrifuge_time: 800
+speed: 1

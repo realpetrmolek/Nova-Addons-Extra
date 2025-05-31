@@ -21,6 +21,16 @@ class AlloySmelterRecipe(
     override val type = RecipeTypes.ALLOY_SMELTER
 }
 
+class IndustrialCentrifugeRecipe(
+    override val id: Key,
+    override val inputs: List<RecipeChoice>,
+    val time: Int,
+    val inputCounts: List<Int> = listOf(),
+    override val results: List<ItemStack> = listOf()
+) : NovaRecipe, MultiInputChoiceRecipe, MultiResultRecipe {
+    override val type = RecipeTypes.INDUSTRIAL_CENTRIFUGE
+}
+
 class ImplosionCompressorRecipe(
     override val id: Key,
     override val inputs: List<RecipeChoice>,

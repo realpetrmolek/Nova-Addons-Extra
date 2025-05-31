@@ -1,0 +1,27 @@
+{
+  "inputs": [
+    {
+      "items": ["minecraft:iron_ore"],
+      "count": 1
+    }
+  ],
+  "outputs": [
+    {
+      "id": "machines:iron_dust",
+      "amount": 2
+    },
+    {
+      "id": "minecraft:cobblestone",
+      "amount": 1
+    },
+    {
+      "id": "minecraft:gravel",
+      "amount": 1
+    },
+    {
+      "id": "minecraft:iron_nugget",
+      "amount": 2
+    }
+  ],
+  "time": 900
+}

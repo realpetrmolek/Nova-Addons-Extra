@@ -43,6 +43,7 @@ object GuiItems : ItemRegistry by Machines.registry {
     val SAPLING_PLACEHOLDER = tpGuiItem("placeholder/sapling", null)
     
     val ALLOY_SMELTER_PROGRESS = progressItem("progress/alloy_smelter", 17)
+    val INDUSTRIAL_CENTRIFUGE_PROGRESS = progressItem("progress/industrial_centrifuge", 17)
     val IMPLOSION_COMPRESSOR_PROGRESS = progressItem("progress/implosion_compressor", 17)
     val ELECTRIC_BLAST_FURNACE_PROGRESS = progressItem("progress/electric_blast_furnace", 17)
     val ARROW_PROGRESS = progressItem("progress/arrow", 17)
