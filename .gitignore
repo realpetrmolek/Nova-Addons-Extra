@@ -36,3 +36,9 @@ logs/
 # Kotlin
 .kotlin/
 .aider*
+
+# Test server
+NovaServer
+
+# VSCode
+.vscode
