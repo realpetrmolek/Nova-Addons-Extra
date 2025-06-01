@@ -354,7 +354,7 @@ class ImplosionCompressor(pos: BlockPos, blockState: NovaBlockState, data: Compo
                 "1 - - - - - - - 2",
                 "| i # # # # # e |",  // Added '!' for the warning
                 "| i # , # o o e |",
-                "| # # c i s u e |",
+                "| # # c ! s u e |",
                 "3 - - - - - - - 4")
             .addIngredient('i', inputInv)
             .addIngredient('o', outputInv)
