@@ -9,7 +9,7 @@ Since I can't create my own textures, I sourced them from:
 - [x] Alloy Smelter
 - [x] Implosion Compressor
 - [x] Electric Blast Furnace
-- [ ] Centrifuge
+- [x] Industrial Centrifuge
 - [ ] Compressor
 - [ ] Extractor
 - [ ] Void Quarry
