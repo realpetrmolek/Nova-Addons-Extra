@@ -1,9 +1,9 @@
 # Nova Addons Extra
 A fork of the official Nova Addons with some added stuff, inspired by IC2, GregTech 4 and other mods.
 
-Since I can't create my own textures, I sourced them from:
-- https://github.com/malcolmriley/unused-textures
-- https://github.com/Futureazoo/TextureRepository
+95% vibecoded (I'm sorry)
+
+I don't know how to create textures, so I sketched some placeholder ones in mspaint.
 
 ### New machines:
 - [x] Alloy Smelter
